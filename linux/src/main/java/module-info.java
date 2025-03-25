@@ -1,5 +1,5 @@
 /**
- * Copyright © 2023 LogonBox Limited (support@logonbox.com)
+ * Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the “Software”), to deal in the Software
@@ -18,16 +18,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import com.logonbox.vpn.drivers.lib.DNSProvider;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
-import com.logonbox.vpn.drivers.linux.LinuxDNSProviderFactory;
-import com.logonbox.vpn.drivers.linux.LinuxPlatformServiceFactory;
+import com.jadaptive.nodal.core.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
+import com.jadaptive.nodal.core.linux.LinuxDNSProviderFactory;
+import com.jadaptive.nodal.core.linux.LinuxPlatformServiceFactory;
 
-open module com.logonbox.vpn.drivers.os {
-//    opens com.logonbox.vpn.drivers.linux.dbus to org.freedesktop.dbus;
+open module com.jadaptive.nodal.core.os {
+//    opens com.jadaptive.nodal.core.linux.dbus to org.freedesktop.dbus;
     
-    exports com.logonbox.vpn.drivers.linux;
-    requires transitive com.logonbox.vpn.drivers.lib;
+    exports com.jadaptive.nodal.core.linux;
+    requires transitive com.jadaptive.nodal.core.lib;
     
     requires com.github.jgonian.ipmath;
     requires org.slf4j;

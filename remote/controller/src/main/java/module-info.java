@@ -1,5 +1,5 @@
 /**
- * Copyright © 2023 LogonBox Limited (support@logonbox.com)
+ * Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the “Software”), to deal in the Software
@@ -18,10 +18,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-open module com.logonbox.vpn.drivers.remote.controller {
-    requires transitive com.logonbox.vpn.drivers.remote.lib;
-    requires transitive com.logonbox.vpn.drivers.lib;
+open module com.jadaptive.nodal.core.remote.controller {
+    requires transitive com.jadaptive.nodal.core.remote.lib;
+    requires transitive com.jadaptive.nodal.core.lib;
     requires transitive org.freedesktop.dbus;
-    exports com.logonbox.vpn.drivers.remote.controller; 
+    exports com.jadaptive.nodal.core.remote.controller; 
 }

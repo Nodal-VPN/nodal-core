@@ -1,30 +1,21 @@
 <!--
 
-    Copyright © 2023 LogonBox Limited (support@logonbox.com)
+    Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-this
-    software and associated documentation files (the “Software”), to deal in the
-Software
-    without restriction, including without limitation the rights to use, copy,
-modify,
-    merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-to
-    permit persons to whom the Software is furnished to do so, subject to the
-following
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this
+    software and associated documentation files (the “Software”), to deal in the Software
+    without restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to the following
     conditions:
 
-    The above copyright notice and this permission notice shall be included in all
-copies
+    The above copyright notice and this permission notice shall be included in all copies
     or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED,
+    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-    PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT
-    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-ACTION
+    PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
@@ -35,12 +26,12 @@ ACTION
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.logonbox</groupId>
-        <artifactId>logonbox-vpn-drivers</artifactId>
+        <groupId>com.jadaptive</groupId>
+        <artifactId>nodal-core</artifactId>
     	<version>0.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>logonbox-vpn-tools</artifactId>
-    <name>LogonBox VPN Drivers - Example Utility</name>
+    <artifactId>nodal-core-tools</artifactId>
+    <name>Nodal Core - Example Utility</name>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -63,12 +54,12 @@ ACTION
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>logonbox-vpn-lib</artifactId>
+            <artifactId>nodal-core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>logonbox-vpn-remote-node</artifactId>
+            <artifactId>nodal-core-remote-node</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -78,7 +69,7 @@ ACTION
         </dependency>
     </dependencies>
     <description>
-        An example of how to use logonbox-vpn-drivers, lbvq sets up a simple
+        An example of how to use nodal-core, ndl-quick sets up a simple
         wireguard tunnel.
     </description>
     <build>
@@ -131,8 +122,8 @@ ACTION
 			</properties>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -146,8 +137,8 @@ ACTION
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -165,8 +156,8 @@ ACTION
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -183,14 +174,14 @@ ACTION
                         <version>${graalvm.version}</version>
                         <executions>
                             <execution>
-                                <id>lbv-exe</id>
+                                <id>ndl-exe</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <mainClass>com.logonbox.vpn.quick.Lbv</mainClass>
-                                    <imageName>lbv</imageName>
+                                    <mainClass>com.jadaptive.nodal.core.quick.Lbv</mainClass>
+                                    <imageName>ndl</imageName>
                                     <buildArgs>
 										<buildArg>-H:Log=registerResource:verbose</buildArg>
                                         <buildArg>--report-unsupported-elements-at-runtime</buildArg>
@@ -207,14 +198,14 @@ ACTION
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>lbv-quick</id>
+                                <id>ndl-quick</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <mainClass>com.logonbox.vpn.quick.LbvQuick</mainClass>
-                                    <imageName>lbv-quick</imageName>
+                                    <mainClass>com.jadaptive.nodal.core.quick.LbvQuick</mainClass>
+                                    <imageName>ndl-quick</imageName>
                                     <buildArgs>
 										<buildArg>-H:Log=registerResource:verbose</buildArg>
                                         <buildArg>--report-unsupported-elements-at-runtime</buildArg>
@@ -233,14 +224,14 @@ ACTION
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>lbv-remote-node-agent</id>
+                                <id>ndl-remote-node-agent</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <mainClass>com.logonbox.vpn.quick.LbvRemoteNodeAgent</mainClass>
-                                    <imageName>lbv-remote-node-agent</imageName>
+                                    <mainClass>com.jadaptive.nodal.core.quick.LbvRemoteNodeAgent</mainClass>
+                                    <imageName>ndl-remote-node-agent</imageName>
                                     <buildArgs>
 										<buildArg>-H:Log=registerResource:verbose</buildArg>
                                         <buildArg>--report-unsupported-elements-at-runtime</buildArg>
@@ -276,7 +267,7 @@ ACTION
                             <transformers>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.logonbox.vpn.quick.LbvRemoteNodeAgent</mainClass>
+                                    <mainClass>com.jadaptive.nodal.core.quick.LbvRemoteNodeAgent</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>

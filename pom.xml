@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © 2023 LogonBox Limited (support@logonbox.com)
+    Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this
     software and associated documentation files (the “Software”), to deal in the Software
@@ -24,11 +24,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.logonbox</groupId>
-    <artifactId>logonbox-vpn-drivers</artifactId>
+    <groupId>com.jadaptive</groupId>
+    <artifactId>nodal-core</artifactId>
     <version>0.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>LogonBox VPN Drivers</name>
+    <name>Nodal Core</name>
     
     <properties>
         <maven.compiler.target>17</maven.compiler.target>
@@ -51,15 +51,15 @@
     <developers>
         <developer>
             <id>brett</id>
-            <email>brett@logonbox.com</email>
+            <email>developers@logonbox.com</email>
         </developer>
     </developers>
     <organization>
-        <name>LogonBox</name>
-        <url>https://logonbox.com</url>
+        <name>JADAPTIVE</name>
+        <url>https://jadaptive.com</url>
     </organization>
     <inceptionYear>2023</inceptionYear>
-    <url>https://github.com/nervepoint/logonbox-vpn-drivers</url>
+    <url>https://github.com/Nodal-VPN/nodal-core</url>
     <description>
         Java interface to Wireguard.
     </description>
@@ -71,30 +71,18 @@
         </license>
     </licenses>
     <distributionManagement>
-        
-        <repository>
-            <id>opensource-releases</id>
-            <url>https://artifactory.jadaptive.com/opensource-releases</url>
-        </repository>
         <snapshotRepository>
-            <id>opensource-snapshots</id>
-            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
-        </snapshotRepository>
-        
-        
-        <!-- TODO We do not currently have com.logonbox group registered for Maven Central -->
-       <!-- <snapshotRepository>
             <id>ossrh-sshtools</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>ossrh-sshtools</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>-->
+        </repository>
     </distributionManagement>
     <scm>
-        <url>https://github.com/nervepoint/logonbox-vpn-drivers</url>
-        <connection>scm:git:https://github.com/nervepoint/logonbox-vpn-drivers.git</connection>
+        <url>https://github.com/Nodal-VPN/nodal-core</url>
+        <connection>scm:git:https://github.com/Nodal-VPN/nodal-core.git</connection>
     </scm>
     <dependencies>
         <dependency>
@@ -264,8 +252,8 @@
                     <configuration>
                         <header>src/templates/MIT.txt</header>
                         <properties>
-                            <owner>LogonBox Limited</owner>
-                            <email>support@logonbox.com</email>
+                            <owner>JADAPTIVE Limited</owner>
+                            <email>support@jadaptive.com</email>
                         </properties>
                         <excludes>
                             <exclude>**/README</exclude>

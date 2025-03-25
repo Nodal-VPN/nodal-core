@@ -1,5 +1,5 @@
 /**
- * Copyright © 2023 LogonBox Limited (support@logonbox.com)
+ * Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the “Software”), to deal in the Software
@@ -18,14 +18,14 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import com.logonbox.vpn.drivers.lib.DNSProvider;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
-import com.logonbox.vpn.drivers.macos.MacOsDNSProviderFactory;
-import com.logonbox.vpn.drivers.macos.MacOsPlatformServiceFactory;
+import com.jadaptive.nodal.core.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
+import com.jadaptive.nodal.core.macos.MacOsDNSProviderFactory;
+import com.jadaptive.nodal.core.macos.MacOsPlatformServiceFactory;
 
-module com.logonbox.vpn.drivers.os {
-    exports com.logonbox.vpn.drivers.macos;
-    requires transitive com.logonbox.vpn.drivers.lib;
+module com.jadaptive.nodal.core.os {
+    exports com.jadaptive.nodal.core.macos;
+    requires transitive com.jadaptive.nodal.core.lib;
     requires org.slf4j;
     requires com.sshtools.liftlib;
     requires static uk.co.bithatch.nativeimage.annotations;

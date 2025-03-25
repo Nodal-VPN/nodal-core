@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © 2023 LogonBox Limited (support@logonbox.com)
+    Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this
     software and associated documentation files (the “Software”), to deal in the Software
@@ -25,17 +25,17 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.logonbox</groupId>
-        <artifactId>logonbox-vpn-remote</artifactId>
+        <groupId>com.jadaptive</groupId>
+        <artifactId>nodal-core-remote</artifactId>
     	<version>0.9.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
-    <artifactId>logonbox-vpn-remote-node</artifactId>
-    <name>LogonBox VPN Drivers - Remote Drivers Node</name>
+    <artifactId>nodal-core-remote-node</artifactId>
+    <name>Nodal Core - Remote Drivers Node</name>
     <dependencies>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>logonbox-vpn-remote-lib</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-core-remote-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -44,8 +44,8 @@
             <id>test</id>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>

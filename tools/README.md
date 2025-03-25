@@ -1,13 +1,9 @@
-# logonbox-vpn-quick
+# nodal-core-tools
 
-[Back To LogonBox VPN Drivers](../README.md)
+[Back To Nodal Core](../README.md)
 
-This module servers serves as a reference implementation and example for *LogonBox VPN Drivers*. It may also
+This module servers serves as a reference implementation and example for *Nodal Core*. It may also
 be a useful tool in its own right, providing clones of the official Wireguard tools.
-
-### The Remote Node Agent
-
-Th
 
 ## Building 
 
@@ -20,7 +16,7 @@ You will need ..
 mvn clean package -P shaded
 ```
 
-This will produce a "shaded" executable Jar `tcp/target/logonbox-vpn-quick-[version]-launcher.jar`, which
+This will produce a "shaded" executable Jar `tcp/target/nodal-core-quick-[version]-launcher.jar`, which
 contains both the send and receive tools.
 
 ## Usage

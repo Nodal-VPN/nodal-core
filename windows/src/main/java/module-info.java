@@ -1,5 +1,5 @@
 /**
- * Copyright © 2023 LogonBox Limited (support@logonbox.com)
+ * Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the “Software”), to deal in the Software
@@ -18,14 +18,14 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import com.logonbox.vpn.drivers.lib.DNSProvider;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
-import com.logonbox.vpn.drivers.windows.WindowsDNSProviderFactory;
-import com.logonbox.vpn.drivers.windows.WindowsPlatformServiceFactory;
+import com.jadaptive.nodal.core.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
+import com.jadaptive.nodal.core.windows.WindowsDNSProviderFactory;
+import com.jadaptive.nodal.core.windows.WindowsPlatformServiceFactory;
 
-open module com.logonbox.vpn.drivers.os {
-    exports com.logonbox.vpn.drivers.windows;
-    requires transitive com.logonbox.vpn.drivers.lib; 
+open module com.jadaptive.nodal.core.os {
+    exports com.jadaptive.nodal.core.windows;
+    requires transitive com.jadaptive.nodal.core.lib; 
     requires transitive org.slf4j;
     requires com.sshtools.liftlib;
     requires transitive com.sun.jna.platform;

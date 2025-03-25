@@ -1,5 +1,5 @@
 /**
- * Copyright © 2023 LogonBox Limited (support@logonbox.com)
+ * Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the “Software”), to deal in the Software
@@ -18,13 +18,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-open module com.logonbox.vpn.quick {
-    requires transitive com.logonbox.vpn.drivers.os;
+open module com.jadaptive.nodal.core.quick {
+    requires transitive com.jadaptive.nodal.core.os;
 	requires info.picocli;
 	requires static uk.co.bithatch.nativeimage.annotations;
-    requires com.logonbox.vpn.drivers.lib;
-    requires transitive com.logonbox.vpn.drivers.remote.node;
+    requires com.jadaptive.nodal.core.lib;
+    requires transitive com.jadaptive.nodal.core.remote.node;
     requires transitive com.sshtools.porter;
     requires com.sshtools.liftlib;
     requires transitive jul.to.slf4j;

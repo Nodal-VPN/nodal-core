@@ -6,12 +6,12 @@ pipeline {
 	}
 
 	stages {
-		stage ('LogonBox VPN Drivers') {
+		stage ('Nodal Core') {
 			parallel {
 			    /*
                  * Deploy cross platform libraries
                  */
-                stage ('Cross-platform VPN Driver Libraries') {
+                stage ('Cross-platform Nodal Core Libraries') {
                     agent {
                         label 'any'
                     }
@@ -20,7 +20,7 @@ pipeline {
                                 configFile(
                                     fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: 'jadaptive.build.properties',
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
@@ -36,7 +36,7 @@ pipeline {
 				/*
 				 * Linux Installers and Packages
 				 */
-				stage ('Linux 64 bit LogonBox VPN Drivers') {
+				stage ('Linux 64 bit Nodal Core') {
 					agent {
 						label 'linux && x86_64'
 					}
@@ -51,7 +51,7 @@ pipeline {
 					 			configFile(
 					 				fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
 					 				replaceTokens: true,
-					 				targetLocation: 'hypersocket.build.properties',
+					 				targetLocation: 'jadaptive.build.properties',
 					 				variable: 'BUILD_PROPERTIES'
 					 			)
 					 		]) {
@@ -62,11 +62,11 @@ pipeline {
 					 		}
         				}
         				
-        				tar file: 'target/logonbox-vpn-tools-linux-x64-' + env.FULL_VERSION + '.tar.gz',
+        				tar file: 'target/nodal-core-tools-linux-x64-' + env.FULL_VERSION + '.tar.gz',
         				    glob: 'lbv*',  exclude: '*.*', overwrite: true,
         				    compress: true, dir: 'tools/target'
                         
-                        tar file: 'target/logonbox-vpn-library-linux-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-library-linux-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: '*.so,*.h,*.txt,LICENSE',  exclude: 'libawt*,libjvm*,libjava*', overwrite: true,
                             compress: true
                 
@@ -75,14 +75,14 @@ pipeline {
                             dontSetBuildResultOnFailure: false, 
                             dontWaitForConcurrentBuildCompletion: false, 
                             entries: [[
-                                bucket: 'logonbox-packages/logonbox-vpn-drivers/' + env.FULL_VERSION, 
+                                bucket: 'sshtools-public/nodal-core/' + env.FULL_VERSION, 
                                 noUploadOnFailure: true, 
                                 selectedRegion: 'eu-west-1', 
                                 sourceFile: 'target/*', 
                                 storageClass: 'STANDARD', 
                                 useServerSideEncryption: false]], 
                             pluginFailureResultConstraint: 'FAILURE', 
-                            profileName: 'LogonBox Buckets', 
+                            profileName: 'JADAPTIVE Buckets', 
                             userMetadata: []
                         )
 					}
@@ -91,7 +91,7 @@ pipeline {
                 /*
                  * Linux Installers and Packages
                  */
-                stage ('Linux Arm 64 bit LogonBox VPN Drivers') {
+                stage ('Linux Arm 64 bit Nodal Core') {
                     agent {
                         label 'linux && aarch64'
                     }
@@ -106,7 +106,7 @@ pipeline {
                                 configFile(
                                     fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: 'jadaptive.build.properties',
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
@@ -117,11 +117,11 @@ pipeline {
                             }
                         }
                         
-                        tar file: 'target/logonbox-vpn-tools-linux-aarch64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-tools-linux-aarch64-' + env.FULL_VERSION + '.tar.gz',
                             glob: 'lbv*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                         
-                        tar file: 'target/logonbox-vpn-library-aarch64-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-library-aarch64-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: '*.so,*.h,*.txt,LICENSE',  exclude: 'libawt*,libjvm*,libjava*', overwrite: true,
                             compress: true
                 
@@ -130,14 +130,14 @@ pipeline {
                             dontSetBuildResultOnFailure: false, 
                             dontWaitForConcurrentBuildCompletion: false, 
                             entries: [[
-                                bucket: 'logonbox-packages/logonbox-vpn-drivers/' + env.FULL_VERSION, 
+                                bucket: 'sshtools-public/nodal-core/' + env.FULL_VERSION, 
                                 noUploadOnFailure: true, 
                                 selectedRegion: 'eu-west-1', 
                                 sourceFile: 'target/*', 
                                 storageClass: 'STANDARD', 
                                 useServerSideEncryption: false]], 
                             pluginFailureResultConstraint: 'FAILURE', 
-                            profileName: 'LogonBox Buckets', 
+                            profileName: 'JADAPTIVE Buckets', 
                             userMetadata: []
                         )
                     }
@@ -146,7 +146,7 @@ pipeline {
 				/*
 				 * MacOS installers
 				 */
-				stage ('Intel MacOS LogonBox VPN Drivers') {
+				stage ('Intel MacOS JADAPTIVE') {
 					agent {
 						label 'macos && x86_64'
 					}
@@ -161,7 +161,7 @@ pipeline {
 					 			configFile(
 					 				fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
 					 				replaceTokens: true,
-					 				targetLocation: 'hypersocket.build.properties',
+					 				targetLocation: 'jadaptive.build.properties',
 					 				variable: 'BUILD_PROPERTIES'
 					 			)
 					 		]) {
@@ -172,11 +172,11 @@ pipeline {
 					 		}
         				}
                         
-                        tar file: 'target/logonbox-vpn-tools-macos-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/jadaptive-tools-macos-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: 'lbv*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                             
-                        tar file: 'target/logonbox-vpn-library-macos-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/jadaptive-library-macos-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: '*.dylib,*.h,*.txt,LICENSE',  exclude: 'libawt*,libjvm*,libjava*', overwrite: true,
                             compress: true
                 
@@ -185,14 +185,14 @@ pipeline {
                             dontSetBuildResultOnFailure: false, 
                             dontWaitForConcurrentBuildCompletion: false, 
                             entries: [[
-                                bucket: 'logonbox-packages/logonbox-vpn-drivers/' + env.FULL_VERSION, 
+                                bucket: 'sshtools-public/nodal-core/' + env.FULL_VERSION, 
                                 noUploadOnFailure: true, 
                                 selectedRegion: 'eu-west-1', 
                                 sourceFile: 'target/*', 
                                 storageClass: 'STANDARD', 
                                 useServerSideEncryption: false]], 
                             pluginFailureResultConstraint: 'FAILURE', 
-                            profileName: 'LogonBox Buckets', 
+                            profileName: 'JADAPTIVE Buckets', 
                             userMetadata: []
                         )
 					}
@@ -201,7 +201,7 @@ pipeline {
                 /*
                  * Arm MacOS installers
                  */
-                stage ('Arm MacOS LogonBox VPN Drivers') {
+                stage ('Arm MacOS JADAPTIVE') {
                     agent {
                         label 'macos && aarch64'
                     }
@@ -216,7 +216,7 @@ pipeline {
                                 configFile(
                                     fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: 'jadaptive.build.properties',
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
@@ -227,11 +227,11 @@ pipeline {
                             }
                         }
                         
-                        tar file: 'target/logonbox-vpn-tools-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-tools-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
                             glob: 'lbv*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                             
-                        tar file: 'target/logonbox-vpn-library-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-library-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
                             glob: '*.dylib,*.h,*.txt,LICENSE',  exclude: 'reports,libawt*,libjvm*,libjava*', overwrite: true,
                             compress: true
                 
@@ -240,14 +240,14 @@ pipeline {
                             dontSetBuildResultOnFailure: false, 
                             dontWaitForConcurrentBuildCompletion: false, 
                             entries: [[
-                                bucket: 'logonbox-packages/logonbox-vpn-drivers/' + env.FULL_VERSION, 
+                                bucket: 'sshtools-public/nodal-core/' + env.FULL_VERSION, 
                                 noUploadOnFailure: true, 
                                 selectedRegion: 'eu-west-1', 
                                 sourceFile: 'target/*', 
                                 storageClass: 'STANDARD', 
                                 useServerSideEncryption: false]], 
                             pluginFailureResultConstraint: 'FAILURE', 
-                            profileName: 'LogonBox Buckets', 
+                            profileName: 'JADAPTIVE Buckets', 
                             userMetadata: []
                         )
                     }
@@ -256,7 +256,7 @@ pipeline {
 				/*
 				 * Windows installers
 				 */
-				stage ('Windows LogonBox VPN Drivers') {
+				stage ('Windows Nodal Core') {
 				
 				    /* TEMPORARY */
 				    /* when { expression { false } } */
@@ -275,7 +275,7 @@ pipeline {
 					 			configFile(
 					 				fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
 					 				replaceTokens: true,
-					 				targetLocation: 'hypersocket.build.properties',
+					 				targetLocation: 'jadaptive.build.properties',
 					 				variable: 'BUILD_PROPERTIES'
 					 			)
 					 		]) {
@@ -286,11 +286,11 @@ pipeline {
 					 		}
         				}
                         
-                        zip zipFile: 'target/logonbox-vpn-tools-windows-x64-' + env.FULL_VERSION + '.zip',
+                        zip zipFile: 'target/nodal-core-windows-x64-' + env.FULL_VERSION + '.zip',
                             glob: 'lbv*',  overwrite: true,
                             dir: 'tools/target'
                             
-                        zip zipFile: 'target/logonbox-vpn-library-windows-x64-' + env.FULL_VERSION + '.zip',
+                        zip zipFile: 'target/nodal-core-library-windows-x64-' + env.FULL_VERSION + '.zip',
                             glob: 'lbv*.dll,*.h',  exclude: 'reports,libawt*,libjvm*,libjava*', overwrite: true,
                             dir: '.'
                 
@@ -299,14 +299,14 @@ pipeline {
                             dontSetBuildResultOnFailure: false, 
                             dontWaitForConcurrentBuildCompletion: false, 
                             entries: [[
-                                bucket: 'logonbox-packages/logonbox-vpn-drivers/' + env.FULL_VERSION, 
+                                bucket: 'sshtools-public/nodal-core/' + env.FULL_VERSION, 
                                 noUploadOnFailure: true, 
                                 selectedRegion: 'eu-west-1', 
                                 sourceFile: 'target/*', 
                                 storageClass: 'STANDARD', 
                                 useServerSideEncryption: false]], 
                             pluginFailureResultConstraint: 'FAILURE', 
-                            profileName: 'LogonBox Buckets', 
+                            profileName: 'JADAPTIVE Buckets', 
                             userMetadata: []
                         )
 					}
