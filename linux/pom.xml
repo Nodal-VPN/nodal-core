@@ -28,6 +28,7 @@
 		<groupId>com.jadaptive</groupId>
 		<artifactId>nodal-core</artifactId>
     	<version>0.9.0-SNAPSHOT</version>
+    	<relativePath>../</relativePath>
 	</parent>
 	<artifactId>nodal-core-linux</artifactId>
 	<name>Nodal Core - Linux Drivers</name>
