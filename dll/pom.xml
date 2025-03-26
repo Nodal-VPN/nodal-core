@@ -31,7 +31,7 @@
     	<version>0.9.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>nodal-core-dll</artifactId>
-	<name>Nodal - Shared Library</name>
+	<name>Nodal Core - Shared Library</name>
 	<packaging>jar</packaging>
 	<properties>
 		<graalvm.libName>liblbv</graalvm.libName>

@@ -21,6 +21,8 @@
 package com.jadaptive.nodal.core.lib.util.impl;
 
 
+import java.util.Base64;
+
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 import org.whispersystems.curve25519.JavaCurve25519Provider;
@@ -114,4 +116,26 @@ public class WhisperKeys implements KeyPairProvider {
 		return provider.verifySignature(publicKey, data, sig);
 	}
 
+    public static  void main(String[] args) {
+		//var prikey = Base64.getDecoder().decode("O+F8ZCJK45oWdatKccPXruuvojilgBaS97KLfCvx754=");
+		/// hrm .... seems to be the culprit. The difference in privatekey that wireguard shows in wg showconf
+		// compared to what we actually have in the interface. The last and first byte is different!
+		var prikey = Base64.getDecoder().decode("OOF8ZCJK45oWdatKccPXruuvojilgBaS97KLfCvx714=");
+		
+		var prov = new WhisperKeys();
+		var keypair = prov.pubkey(prikey);
+		System.out.println("Auto: " + keypair.getBase64PublicKey() + " / " + keypair.getBase64PrivateKey());
+		
+//		var bsc = new BasicKeys();
+//		var kp2 = bsc.pubkey(prikey);
+//		System.out.println("Bsc: " + kp2.getBase64PublicKey() + " / " + keypair.getBase64PrivateKey());
+		
+		var data = "SOMETHING TO SIGN".getBytes();
+		var sig = keypair.sign(data);
+		var ver = prov.verify(keypair.getPublicKey(), data, sig);
+		System.out.println("VER: " + ver);
+		
+		
+		
+	}
 }
