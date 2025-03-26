@@ -13,7 +13,7 @@ pipeline {
                  */
                 stage ('Cross-platform Nodal Core Libraries') {
                     agent {
-                        label 'any'
+                        label 'posix'
                     }
                     steps {
                         configFileProvider([
@@ -27,7 +27,10 @@ pipeline {
                             withMaven(
                                 globalMavenSettingsConfig: '14324b85-c597-44e8-a575-61f925dba528'
                             ) {
-                                sh 'mvn -U clean deploy'
+                                sh '''
+                                mvn "-Dbuild.projectProperties=$BUILD_PROPERTIES" \
+                                    -U clean deploy
+                                '''
                             }
                         }
                     }
