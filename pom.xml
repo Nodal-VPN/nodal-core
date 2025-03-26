@@ -72,13 +72,9 @@
     </licenses>
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh-sshtools</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
         </snapshotRepository>
-        <repository>
-            <id>ossrh-sshtools</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
     </distributionManagement>
     <scm>
         <url>https://github.com/Nodal-VPN/nodal-core</url>
@@ -129,6 +125,18 @@
 	</dependencyManagement>
     <build>
         <plugins>
+
+			<plugin>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.7.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+				</configuration>
+			</plugin>
+        
+        
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -145,7 +153,7 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-           <!-- <plugin>
+			<!-- <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
