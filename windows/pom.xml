@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.jadaptive</groupId>
         <artifactId>nodal-core</artifactId>
-    	<version>0.9.0-SNAPSHOT</version>
+    	<version>0.9.0</version>
     	<relativePath>../</relativePath>
     </parent>
     <artifactId>nodal-core-windows</artifactId>
