@@ -1,5 +1,6 @@
 ====
-    Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
+    Copyright ©2023-2025 LogonBox Ltd
+    All changes post March 2025 Copyright © 2023 JADAPTIVE Limited (support@jadaptive.com)
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this
     software and associated documentation files (the “Software”), to deal in the Software
