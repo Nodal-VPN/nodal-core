@@ -164,6 +164,14 @@
 		             <autoPublish>true</autoPublish>
 		             <waitUntil>published</waitUntil>
 				</configuration>
+				<executions>
+					<execution>
+						<phase>deploy</phase>
+						<goals>
+							<goal>publish</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
         
         
