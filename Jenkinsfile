@@ -29,7 +29,7 @@ pipeline {
                             ) {
                                 sh '''
                                 mvn "-Dbuild.projectProperties=$BUILD_PROPERTIES" \
-                                    -U clean deploy
+                                    -U clean deploy -DperformRelease=true
                                 '''
                             }
                         }
