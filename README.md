@@ -21,7 +21,7 @@ and request a virtual network.
  
  
 ## Installation
-
+ 
 You just need to add the appropriate driver library, and that will pull in required 
 dependencies (it is suggested you use profiles to activate the appropriate dependency).
 
@@ -46,10 +46,30 @@ Also part of this project, are the `remote` modules. These make it possible to a
 
 ### Creating a Wireguard Connection Using An INI file
 
-The simplest usage is to create a working VPN tunnel given a standard Wireguard configuration file.
+The simplest usage is to create a working VPN tunnel given a standard Wireguard configuration file using `Vpn.Builder`. 
 
 ```java
-/* TODO */ 
+// Start and stop the VPN after a minute
+try(var vpn = new Vpn.Builder().
+	withVpnConfiguration("""
+	[Interface]
+	PrivateKey=83aPzAqghs3wqssdh5as1DAgi77TWFygmkwqRdGAzUQ=
+	Address=172.16.0.1
+	DNS=192.168.123.1, mycorp.lan
+	
+	[Peer]
+	PublicKey=YUJ8nEyJi1BU3EtFOFXtP+yJZZF9IiN/F2p6/m8x90E=
+	Endpoint=1.2.3.4:51820
+	AllowedIPs=172.16.0.0/16, 192.168.123.0/24, 192.168.122.0/24, 172.17.0.0/16
+	PersistentKeepalive=35
+			""").
+	build()) {
+	
+	vpn.open();
+	
+	Thread.sleep(Duration.ofMinutes(1).toMillis());
+}
+		
 ```
 
 ## Full Example Application And Tools
