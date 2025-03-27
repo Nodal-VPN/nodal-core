@@ -47,14 +47,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.jgonian.ipmath.AbstractIp;
-import com.github.jgonian.ipmath.Ipv4;
-import com.github.jgonian.ipmath.Ipv4Range;
-import com.github.jgonian.ipmath.Ipv6;
-import com.github.jgonian.ipmath.Ipv6Range;
 import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
 import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
 import com.jadaptive.nodal.core.lib.Prefs.PrefType;
+import com.jadaptive.nodal.core.lib.ipmath.AbstractIp;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4Range;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6Range;
 import com.jadaptive.nodal.core.lib.util.IpUtil;
 import com.jadaptive.nodal.core.lib.util.Util;
 

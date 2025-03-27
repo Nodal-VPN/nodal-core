@@ -1,6 +1,7 @@
 # nodal-core
 
 Nodal Core provide a common Java interface to configure and maintain a [Wireguard](https://www.wireguard.com/)
+
 VPN. It is the new home and continuation of [LogonBox VPN Drivers](https://github.com/nervepoint/logonbox-vpn-drivers).
 
 It currently supports 3 operating systems.
@@ -24,7 +25,7 @@ and request a virtual network.
 You just need to add the appropriate driver library, and that will pull in required 
 dependencies (it is suggested you use profiles to activate the appropriate dependency).
 
- * `nodal-core`-linux` for Linux (all architectures)
+ * `nodal-core-linux` for Linux (all architectures)
  * `nodal-core-macos` for Mac OS (all architectures)
  * `nodal-core-windows` for Windows (all architectures)
 
@@ -54,4 +55,9 @@ The simplest usage is to create a working VPN tunnel given a standard Wireguard 
 ## Full Example Application And Tools
 
 See [tools/README.md](tools/README.md) for a complete example application and usable tools.
- 
+
+## Credits
+
+Includes MIT licensed source code from [commmons-ip-math](https://github.com/jgonian/commons-ip-math). 
+
+See [WIREGUARD-LICENSE.txt](WIREGUARD-LICENSE.txt) and [WireGuardNT-LICENSE.txt] for more information on included Wireguard commponents.

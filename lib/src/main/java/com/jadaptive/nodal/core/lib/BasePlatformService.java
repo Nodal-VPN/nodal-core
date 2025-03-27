@@ -20,14 +20,14 @@
  */
 package com.jadaptive.nodal.core.lib;
 
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
-
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
 
 public abstract class BasePlatformService<I extends VpnAddress> implements PlatformService<I> {
 

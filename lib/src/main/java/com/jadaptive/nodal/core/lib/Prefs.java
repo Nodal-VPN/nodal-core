@@ -20,10 +20,10 @@
  */
 package com.jadaptive.nodal.core.lib;
 
-import com.sshtools.liftlib.ElevatedClosure;
-
 import java.io.Serializable;
 import java.util.prefs.Preferences;
+
+import com.sshtools.liftlib.ElevatedClosure;
 
 import uk.co.bithatch.nativeimage.annotations.Serialization;
 

@@ -38,11 +38,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>    
         <dependency>
-            <groupId>com.github.jgonian</groupId>
-            <artifactId>commons-ip-math</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>liftlib</artifactId>
             <version>0.9.13</version>
@@ -65,6 +60,21 @@
         </dependency>
 
     </dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/README</exclude>
+						<exclude>**/ipmath/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+    </plugins>
+    </build>
    
     <repositories>
         <repository>

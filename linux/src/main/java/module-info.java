@@ -29,7 +29,6 @@ open module com.jadaptive.nodal.core.os {
     exports com.jadaptive.nodal.core.linux;
     requires transitive com.jadaptive.nodal.core.lib;
     
-    requires com.github.jgonian.ipmath;
     requires org.slf4j;
     requires org.freedesktop.dbus;
     requires com.sshtools.liftlib;

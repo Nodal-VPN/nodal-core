@@ -20,11 +20,6 @@
  */
 package com.jadaptive.nodal.core.lib.util;
 
-import com.sshtools.liftlib.OS;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,6 +29,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sshtools.liftlib.OS;
 
 public class OsUtil {
 	public final static Logger LOG = LoggerFactory.getLogger(OsUtil.class);

@@ -20,13 +20,6 @@
  */
 package com.jadaptive.nodal.core.lib;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
-import com.jadaptive.nodal.core.lib.util.OsUtil;
-import com.jadaptive.nodal.core.lib.util.Util;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
@@ -41,6 +34,13 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.jadaptive.nodal.core.lib.util.Util;
 
 public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 		extends AbstractDesktopPlatformService<I> {

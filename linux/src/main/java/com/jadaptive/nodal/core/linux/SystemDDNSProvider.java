@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jadaptive.nodal.core.lib.DNSProvider;
-import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
 import com.jadaptive.nodal.core.lib.PlatformService;
 import com.jadaptive.nodal.core.linux.dbus.Resolve1Manager;
 import com.jadaptive.nodal.core.linux.dbus.Resolve1Manager.RootDNSPropertyStruct;

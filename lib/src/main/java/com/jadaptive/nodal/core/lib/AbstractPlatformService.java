@@ -22,9 +22,6 @@ package com.jadaptive.nodal.core.lib;
 
 import static java.nio.file.Files.setPosixFilePermissions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -32,6 +29,9 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.prefs.Preferences;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPlatformService<I extends VpnAddress> extends BasePlatformService<I> {
 	final static Logger LOG = LoggerFactory.getLogger(AbstractPlatformService.class);

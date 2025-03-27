@@ -20,8 +20,10 @@
  */
 package com.jadaptive.nodal.core.linux.dbus;
 
-import com.github.jgonian.ipmath.Ipv4;
-import com.github.jgonian.ipmath.Ipv6;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.List;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.Struct;
@@ -29,10 +31,8 @@ import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.annotations.Position;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.List;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6;
 
 import uk.co.bithatch.nativeimage.annotations.Proxy;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;

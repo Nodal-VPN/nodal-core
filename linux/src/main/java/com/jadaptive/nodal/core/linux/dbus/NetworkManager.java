@@ -20,6 +20,8 @@
  */
 package com.jadaptive.nodal.core.linux.dbus;
 
+import java.util.Map;
+
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.Struct;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
@@ -27,8 +29,6 @@ import org.freedesktop.dbus.annotations.Position;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.types.UInt32;
 import org.freedesktop.dbus.types.Variant;
-
-import java.util.Map;
 
 import uk.co.bithatch.nativeimage.annotations.Proxy;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;

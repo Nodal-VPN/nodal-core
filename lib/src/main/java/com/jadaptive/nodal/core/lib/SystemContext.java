@@ -20,14 +20,14 @@
  */
 package com.jadaptive.nodal.core.lib;
 
-import com.sshtools.liftlib.commands.SystemCommands;
-
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+
+import com.sshtools.liftlib.commands.SystemCommands;
 
 public interface SystemContext {
 

@@ -23,12 +23,13 @@ package com.jadaptive.nodal.core.lib.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.jgonian.ipmath.AbstractIp;
-import com.github.jgonian.ipmath.AbstractIpRange;
-import com.github.jgonian.ipmath.Ipv4;
-import com.github.jgonian.ipmath.Ipv4Range;
-import com.github.jgonian.ipmath.Ipv6;
-import com.github.jgonian.ipmath.Ipv6Range;
+import com.jadaptive.nodal.core.lib.ipmath.AbstractIp;
+import com.jadaptive.nodal.core.lib.ipmath.AbstractIpRange;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4Range;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6Range;
+
 
 public class IpUtil {
 	

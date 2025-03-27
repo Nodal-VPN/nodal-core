@@ -37,9 +37,9 @@ import org.freedesktop.dbus.types.Variant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.jgonian.ipmath.Ipv4;
 import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.jadaptive.nodal.core.lib.PlatformService;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
 import com.jadaptive.nodal.core.lib.util.Util;
 import com.jadaptive.nodal.core.linux.dbus.NetworkManager;
 import com.jadaptive.nodal.core.linux.dbus.NetworkManager.Ipv6Address;

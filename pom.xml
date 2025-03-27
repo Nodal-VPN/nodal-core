@@ -40,6 +40,7 @@
         <graalvm.version>0.9.28</graalvm.version>
 		<build.projectProperties>${basedir}/jadaptive.build.properties</build.projectProperties>
 		<build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>
+		<build.quietProperties>true</build.quietProperties>
     </properties>
     <modules>
         <module>lib</module>

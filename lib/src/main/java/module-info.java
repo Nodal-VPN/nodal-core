@@ -26,8 +26,8 @@ import com.jadaptive.nodal.core.lib.util.impl.WhisperKeys;
 open module com.jadaptive.nodal.core.lib {
     exports com.jadaptive.nodal.core.lib;
     exports com.jadaptive.nodal.core.lib.util;
+    exports com.jadaptive.nodal.core.lib.ipmath;
     requires transitive org.slf4j;
-    requires com.github.jgonian.ipmath;
     requires transitive com.sshtools.liftlib;
     requires transitive com.sshtools.jini;
     requires static uk.co.bithatch.nativeimage.annotations;

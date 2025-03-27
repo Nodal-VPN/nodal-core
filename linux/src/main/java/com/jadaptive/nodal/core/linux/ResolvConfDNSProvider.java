@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.jadaptive.nodal.core.lib.DNSProvider;
-import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
 import com.jadaptive.nodal.core.lib.PlatformService;
 
 public class ResolvConfDNSProvider implements DNSProvider {
