@@ -72,6 +72,45 @@ try(var vpn = new Vpn.Builder().
 		
 ```
 
+or you could retrieve the configuration over HTTP ...
+
+```java
+// Make a builder
+var bldr = new Vpn.Builder();
+
+// We are accessing over HTTPS, and may need to authentication
+HttpURLConnection.setDefaultAllowUserInteraction(true);
+Authenticator.setDefault(new Authenticator() {
+
+	@Override
+	protected PasswordAuthentication getPasswordAuthentication() {
+		return new PasswordAuthentication("joe.b", "Password123?".toCharArray());
+	}
+	
+});
+
+// Get some config
+try(var in = new URL("https://myawesomecompany.com/get-vpn/basic/admin.wg.conf").openStream()) {
+	bldr.withVpnConfiguration(new InputStreamReader(in));
+}
+
+// Start and stop the VPN after one minute
+try(var vpn = bldr.build()) {
+	
+	vpn.open();
+
+	// Wait a minute
+	Thread.sleep(Duration.ofMinutes(1).toMillis());
+}
+```
+
+### Creating a Wireguard Connection With Java
+
+You can use use builders to create a configuration, including key generation. 
+
+```java
+```
+
 ## Full Example Application And Tools
 
 See [tools/README.md](tools/README.md) for a complete example application and usable tools.
