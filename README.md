@@ -109,6 +109,40 @@ try(var vpn = bldr.build()) {
 You can use use builders to create a configuration, including key generation. 
 
 ```java
+var cfg = new VpnConfiguration.Builder().
+		withAddresses("172.16.0.1").
+		withDns("192.168.91.1", "southpark.lan").
+		withPeers(new VpnPeer.Builder().
+			withPublicKey("YUJ8nEyJi1BU3EtFOFXtP+yJZZF9IiN/F2p6/m8x90E=").
+			withEndpoint("82.43.104.90:51820").
+			build()).
+		build();
+
+System.out.format("""
+		Your generated public key is: %s
+		
+		This must be added to a [Peer] configuration on %s along with your requested IP
+		address %s. For example,
+		
+		[Peer]
+		PublicKey=%s
+		AllowedIps=%s
+		""", 
+		cfg.publicKey(), 
+		cfg.peers().get(0).endpointAddress().orElse("Unknown"),
+	 	String.join(", ", cfg.addresses()),
+	 	cfg.publicKey(),
+	 	String.join(", ", cfg.addresses()));
+
+// Start and stop the VPN after one minute
+try(var vpn = new Vpn.Builder().
+		withVpnConfiguration(cfg).
+		build()) {
+	
+	vpn.open();
+	
+	Thread.sleep(Duration.ofMinutes(1).toMillis());
+}
 ```
 
 ## Full Example Application And Tools
