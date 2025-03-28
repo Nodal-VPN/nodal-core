@@ -111,7 +111,7 @@ You can use use builder to create a configuration, including key generation.
 ```java
 var cfg = new VpnConfiguration.Builder().
 	withAddresses("172.16.0.1").
-	withDns("192.168.123.1", "mycorp.lan).
+	withDns("192.168.123.1", "mycorp.lan").
 	withPeers(new VpnPeer.Builder().
 		withPublicKey("YUJ8nEyJi1BU3EtFOFXtP+yJZZF9IiN/F2p6/m8x90E=").
 		withEndpoint("1.2.3.4:51820").
