@@ -1,8 +1,6 @@
 # nodal-core
 
-Nodal Core provide a common Java interface to configure and maintain a [Wireguard](https://www.wireguard.com/)
-
-VPN. It is the new home and continuation of [LogonBox VPN Drivers](https://github.com/nervepoint/logonbox-vpn-drivers).
+Nodal Core provide a common Java interface to configure and maintain a [Wireguard](https://www.wireguard.com/) VPN. It is the new home and continuation of [LogonBox VPN Drivers](https://github.com/nervepoint/logonbox-vpn-drivers).
 
 It currently supports 3 operating systems.
 

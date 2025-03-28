@@ -72,9 +72,14 @@
         </license>
     </licenses>
     <distributionManagement>
-        <snapshotRepository>
+    	<!-- TODO Doesnt yet work, may just need enabling in central UI -->
+        <!--<snapshotRepository>
             <id>central-snapshots</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>-->
+        <snapshotRepository>
+            <id>opensource-snapshots</id>
+            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
         </snapshotRepository>
         <repository>
             <id>central</id>
