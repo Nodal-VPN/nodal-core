@@ -127,7 +127,7 @@ System.out.format("""
 	
 	[Peer]
 	PublicKey=%s
-	AllowedIps=%s
+	AllowedIPs=%s
 	""", 
 	cfg.publicKey(), 
 	cfg.peers().get(0).endpointAddress().orElse("Unknown"),
