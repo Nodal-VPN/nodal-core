@@ -32,6 +32,13 @@ import com.sshtools.liftlib.commands.SystemCommands;
 
 public interface SystemContext {
 
+	/**
+	 * Will be removed, as it is no longer really needed. It was only ever used by clients of  
+	 * nodal-core, which should now just deal with their own queues.
+	 * 
+	 * @return
+	 */
+	@Deprecated
     ScheduledExecutorService queue();
 
     SystemConfiguration configuration();
