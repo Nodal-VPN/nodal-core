@@ -21,6 +21,7 @@
  */
 package com.jadaptive.nodal.core.remote.node;
 
+import static com.jadaptive.nodal.core.remote.node.Remoting.escapeNameForDBus;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class RemoteVpnAddressDelegate implements RemoteVpnAddress {
 
     @Override
     public String getObjectPath() {
-        return RemoteVpnAddress.OBJECT_PATH + "/" + nativeName();
+        return RemoteVpnAddress.OBJECT_PATH + "/" + escapeNameForDBus(nativeName());
     }
 
     @Override
