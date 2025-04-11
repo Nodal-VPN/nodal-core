@@ -123,7 +123,7 @@ public class ResolvConfDNSProvider implements DNSProvider {
             if(ifname.equals("systemd-resolved")) {
             	var sysd = new SystemDDNSProvider();
             	sysd.init(platform);
-            	return sysd.entry(platform.context().getBestLocalNic().getName());
+            	return sysd.entry(platform.getBestLocalNic().orElseThrow(() -> new IOException("Could not determine local NIC.")).getName());
             }
 			bldr.withInterface(ifname);
             while( ( line = rdr.readLine() ) != null) {

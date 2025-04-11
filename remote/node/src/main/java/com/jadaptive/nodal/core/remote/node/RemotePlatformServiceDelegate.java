@@ -40,15 +40,16 @@ import org.slf4j.LoggerFactory;
 
 import com.jadaptive.nodal.core.lib.PlatformService;
 import com.jadaptive.nodal.core.lib.PlatformService.Gateway;
+import com.jadaptive.nodal.core.lib.VpnAdapterConfiguration;
+import com.jadaptive.nodal.core.lib.VpnAddress;
+import com.jadaptive.nodal.core.lib.VpnConfiguration;
 import com.jadaptive.nodal.core.remote.lib.RemoteNATMode;
+import com.jadaptive.nodal.core.remote.lib.RemoteNetworkInterface;
 import com.jadaptive.nodal.core.remote.lib.RemotePlatformService;
 import com.jadaptive.nodal.core.remote.lib.RemoteStartRequest;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnAddress;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnInterfaceInformation;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnPeer;
-import com.jadaptive.nodal.core.lib.VpnAdapterConfiguration;
-import com.jadaptive.nodal.core.lib.VpnAddress;
-import com.jadaptive.nodal.core.lib.VpnConfiguration;
 
 import uk.co.bithatch.nativeimage.annotations.Proxy;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
@@ -367,5 +368,15 @@ public class RemotePlatformServiceDelegate implements RemotePlatformService, Clo
 		for(var conx : addresses.values()) {
             connection.unExportObject(conx.getObjectPath());
         }
+	}
+
+	@Override
+	public RemoteNetworkInterface getBestLocalNic() {
+		return new RemoteNetworkInterface(delegate.getBestLocalNic().orElseThrow(() -> new IllegalStateException("No local NIC could be found.")));
+	}
+
+	@Override
+	public RemoteNetworkInterface[] getBestLocalNics() {
+		return delegate.getBestLocalNics().stream().map(RemoteNetworkInterface::new).toList().toArray(new RemoteNetworkInterface[0]);
 	}
 }

@@ -94,7 +94,10 @@ public class RawDNSProvider implements DNSProvider {
                     else {
                     	if(systemBldr == null) {
                     		systemBldr = new DNSEntry.Builder();
-                    		systemBldr.withInterface(platform.context().getBestLocalNic().getName());
+                    		var nic = platform.getBestLocalNic();
+                    		if(nic.isPresent()) {
+                    			systemBldr.withInterface(nic.get().getName());
+                    		}
                     		dns.add(0, systemBldr);
                     	}
                         if (l.get(0).equals("nameserver")) 

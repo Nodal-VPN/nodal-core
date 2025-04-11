@@ -37,12 +37,7 @@ import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import com.jadaptive.nodal.core.lib.BasePlatformService;
 import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.jadaptive.nodal.core.lib.NATMode;
-import com.jadaptive.nodal.core.lib.PlatformService.Gateway;
-import com.jadaptive.nodal.core.remote.lib.RemoteDNSProvider;
-import com.jadaptive.nodal.core.remote.lib.RemoteNATMode;
-import com.jadaptive.nodal.core.remote.lib.RemotePlatformService;
-import com.jadaptive.nodal.core.remote.lib.RemoteStartRequest;
-import com.jadaptive.nodal.core.remote.lib.RemoteVpnPeer;
+import com.jadaptive.nodal.core.lib.NetworkInterfaceInfo;
 import com.jadaptive.nodal.core.lib.StartRequest;
 import com.jadaptive.nodal.core.lib.SystemContext;
 import com.jadaptive.nodal.core.lib.VpnAdapter;
@@ -51,6 +46,11 @@ import com.jadaptive.nodal.core.lib.VpnAddress;
 import com.jadaptive.nodal.core.lib.VpnConfiguration;
 import com.jadaptive.nodal.core.lib.VpnInterfaceInformation;
 import com.jadaptive.nodal.core.lib.VpnPeer;
+import com.jadaptive.nodal.core.remote.lib.RemoteDNSProvider;
+import com.jadaptive.nodal.core.remote.lib.RemoteNATMode;
+import com.jadaptive.nodal.core.remote.lib.RemotePlatformService;
+import com.jadaptive.nodal.core.remote.lib.RemoteStartRequest;
+import com.jadaptive.nodal.core.remote.lib.RemoteVpnPeer;
 
 public final class BusRemotePlatformService extends BasePlatformService<BusVpnAddress> {
 
@@ -265,7 +265,21 @@ public final class BusRemotePlatformService extends BasePlatformService<BusVpnAd
     @Override
     public void sync(VpnAdapter vpnAdapter, VpnAdapterConfiguration cfg) throws IOException {
         remote.sync(vpnAdapter.address().nativeName(), cfg.write());
-
     }
+
+	@Override
+	public Optional<NetworkInterfaceInfo<?>> getBestLocalNic() {
+		try {
+			return Optional.of(remote.getBestLocalNic());
+		}
+		catch(Exception e) {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public List<NetworkInterfaceInfo<?>> getBestLocalNics() {
+		return Arrays.asList(remote.getBestLocalNics());
+	}
 
 }

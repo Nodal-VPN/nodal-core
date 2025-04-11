@@ -23,10 +23,17 @@ package com.jadaptive.nodal.core.lib;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import com.jadaptive.nodal.core.lib.util.IpUtil;
 
 public interface PlatformService<ADDR extends VpnAddress> {
 	
@@ -392,5 +399,114 @@ public interface PlatformService<ADDR extends VpnAddress> {
 	 */
 	void defaultGateway(Optional<Gateway> iface);
 	
+    
+	/**
+	 * Get the best local network adapter (for NAT, DNS etc).
+	 * 
+	 * @return best local adapter
+	 */
+	default Optional<NetworkInterfaceInfo<?>> getBestLocalNic() {
+		return getBestLocalNics().stream().findFirst();
+	}
+    
+	/**
+	 * Get all appropriate network adapters for NAT, DNS etc.
+	 * 
+	 * @return best local adapters
+	 */
+	default List<NetworkInterfaceInfo<?>> getBestLocalNics() {
+		var addrList = new ArrayList<NetworkInterfaceInfo<?>>();
+		var adapters = adapters().stream().map(VpnAdapter::address).map(VpnAddress::name).toList();
+		try {
+			for (var nifEn = NetworkInterface.getNetworkInterfaces(); nifEn
+					.hasMoreElements();) {
+				var nif = nifEn.nextElement();
+				if (!adapters.contains(nif.getName()) && !nif.isLoopback() && nif.isUp()) {
+					for (var addr : nif.getInterfaceAddresses()) {
+						var ipAddr = addr.getAddress();
+						if (!ipAddr.isAnyLocalAddress() && !ipAddr.isLinkLocalAddress()
+								&& !ipAddr.isLoopbackAddress()) {
+							addrList.add(new NativeNetworkInterfaceInfo(nif));
+							break;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+		return Collections.unmodifiableList(addrList);
+	}
 
+	public final static class NativeInterfaceAddressInfo implements InterfaceAddressInfo {
+		private final InterfaceAddress address;
+
+		private NativeInterfaceAddressInfo(InterfaceAddress address) {
+			this.address = address;
+		}
+
+		@Override
+		public String getAddress() {
+			return address.getAddress().getHostAddress();
+		}
+
+		@Override
+		public String getBroadcast() {
+			return address.getBroadcast() == null ? "" : address.getBroadcast().getHostAddress();
+		}
+
+		@Override
+		public int getNetworkPrefixLength() {
+			return address.getNetworkPrefixLength();
+		}
+	}
+	
+	public final static class NativeNetworkInterfaceInfo implements NetworkInterfaceInfo<NativeInterfaceAddressInfo> {
+
+		private final NetworkInterface networkInterface;
+		private final String hwaddr;
+		private final int mtu;
+		private final NativeInterfaceAddressInfo[] addresses;
+
+		private NativeNetworkInterfaceInfo(NetworkInterface networkInterface) {
+			this.networkInterface = networkInterface;
+			try {
+				hwaddr = IpUtil.toIEEE802(networkInterface.getHardwareAddress());
+				mtu = networkInterface.getMTU();
+				addresses = networkInterface.getInterfaceAddresses().stream().map(NativeInterfaceAddressInfo::new).toList().toArray(new NativeInterfaceAddressInfo[0]);
+			} catch (SocketException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return networkInterface.getName();
+		}
+
+		@Override
+		public String getDisplayName() {
+			return networkInterface.getDisplayName();
+		}
+
+		@Override
+		public String getHardwareAddress() {
+			return hwaddr;
+		}
+
+		@Override
+		public int getMtu() {
+			return mtu;
+		}
+
+		@Override
+		public int getIndex() {
+			return networkInterface.getIndex();
+		}
+
+		@Override
+		public NativeInterfaceAddressInfo[] getInterfaceAddresses() {
+			return addresses;
+		}
+		
+	}
 }

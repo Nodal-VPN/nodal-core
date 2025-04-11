@@ -25,11 +25,15 @@ import java.io.UncheckedIOException;
 import java.net.Inet4Address;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
+import com.jadaptive.nodal.core.lib.util.IpUtil;
 
 /**
  * Represents (2) NAT modes.
@@ -129,6 +133,13 @@ public abstract class NATMode {
 			return ipv4addrs;
 		}
 
+		public static Collection<String> toIpv4Addresses(NetworkInterfaceInfo<?> to) {
+			List<String> ipv4addrs = Arrays.asList(to.getInterfaceAddresses()).stream().
+					filter(a -> IpUtil.parse(a.getAddress()) instanceof Ipv4).map(a -> a.getAddress()).toList();
+			if(ipv4addrs.isEmpty())
+				throw new IllegalStateException("NAT is currently on supported for IPv4 networks.");
+			return ipv4addrs;
+		}
 	}
 
 	public final static class MASQUERADE extends NATMode {

@@ -288,5 +288,21 @@ public interface RemotePlatformService extends DBusInterface {
      * @param peer peer
      */
     void defaultGatewayPeer(RemoteVpnPeer peer);
+    
+
+    
+	/**
+	 * Get the best local network adapter (for NAT, DNS etc).
+	 * 
+	 * @return best local adapter
+	 */
+	RemoteNetworkInterface getBestLocalNic();
+    
+	/**
+	 * Get all appropriate network adapters for NAT, DNS etc.
+	 * 
+	 * @return best local adapters
+	 */
+	RemoteNetworkInterface[] getBestLocalNics();
 
 }

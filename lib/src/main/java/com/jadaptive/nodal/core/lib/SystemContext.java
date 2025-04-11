@@ -21,10 +21,6 @@
  */
 package com.jadaptive.nodal.core.lib;
 
-import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -62,34 +58,4 @@ public interface SystemContext {
     NativeComponents nativeComponents();
     
     void alert(String message, Object... args);
-    
-	default NetworkInterface getBestLocalNic() {
-		var nics = getBestLocalNics();
-		if(nics.isEmpty())
-			throw new IllegalStateException("Could not find local network interface.");
-		return nics.get(0);
-	}
-
-	default List<NetworkInterface> getBestLocalNics() {
-		var addrList = new ArrayList<NetworkInterface>();
-		try {
-			for (var nifEn = NetworkInterface.getNetworkInterfaces(); nifEn
-					.hasMoreElements();) {
-				var nif = nifEn.nextElement();
-				/* TODO: Wireguard interfaces won't necessarily start with wg* */
-				if (!nif.getName().startsWith("wg") && !nif.isLoopback() && nif.isUp()) {
-					for (var addr : nif.getInterfaceAddresses()) {
-						var ipAddr = addr.getAddress();
-						if (!ipAddr.isAnyLocalAddress() && !ipAddr.isLinkLocalAddress()
-								&& !ipAddr.isLoopbackAddress()) {
-							addrList.add(nif);
-							break;
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-		}
-		return Collections.unmodifiableList(addrList);
-	}
 }

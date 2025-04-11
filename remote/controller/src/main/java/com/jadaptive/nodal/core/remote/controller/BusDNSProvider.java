@@ -29,10 +29,9 @@ import java.util.Optional;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
 
 import com.jadaptive.nodal.core.lib.DNSProvider;
-import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
+import com.jadaptive.nodal.core.lib.PlatformService;
 import com.jadaptive.nodal.core.remote.lib.RemoteDNSEntry;
 import com.jadaptive.nodal.core.remote.lib.RemoteDNSProvider;
-import com.jadaptive.nodal.core.lib.PlatformService;
 
 public class BusDNSProvider implements DNSProvider {
     

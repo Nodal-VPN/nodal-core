@@ -156,7 +156,9 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 
 			LOG.info("Removing existing MASQUERADE/SNAT rules for {}", iface);
 			var priv = context.commands().privileged();
+			
 			try {
+				var local = getBestLocalNic().orElseThrow(() -> new IOException("Local NIC could not be determined."));
 				if(is.isPresent()) {
 					var i = is.get();
 					if(i instanceof SNAT snat) {
@@ -171,9 +173,8 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 							}
 						}
 
-						var to = context.getBestLocalNic();
-						for(var addr : NATMode.SNAT.toIpv4Addresses(to)) {
-							LOG.info("Removing SNAT rules for {} to {} using {}", iface, to.getName(), addr);
+						for(var addr : NATMode.SNAT.toIpv4Addresses(local)) {
+							LOG.info("Removing SNAT rules for {} to {} using {}", iface, local.getName(), addr);
 							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN,  
 									"-i", iface,
 									"-j", SNAT, "--to-source", addr);
@@ -182,9 +183,8 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 					}
 					else if(i instanceof MASQUERADE masq) {
 						if(masq.out().isEmpty()) {
-							var to = context.getBestLocalNic();
-							LOG.info("Removing MASQ rules for {} to {}", iface, to.getName());
-							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", to.getName(), "-j", MASQUERADE, "-o", iface);
+							LOG.info("Removing MASQ rules for {} to {}", iface, local.getName());
+							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", local.getName(), "-j", MASQUERADE, "-o", iface);
 							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE);
 						}
 						else {
@@ -217,9 +217,8 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 							}
 						}
 
-						var to = context.getBestLocalNic();
-						for(var addr : NATMode.SNAT.toIpv4Addresses(to)) {
-							LOG.info("Adding SNAT rules for {} to {} using {}", iface, to.getName(), addr);
+						for(var addr : NATMode.SNAT.toIpv4Addresses(local)) {
+							LOG.info("Adding SNAT rules for {} to {} using {}", iface, local.getName(), addr);
 							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN,  
 									"-i", iface,
 									"-j", SNAT, "--to-source", addr);
@@ -228,10 +227,9 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 					}
 					else if(n instanceof MASQUERADE masq) {
 						if(masq.out().isEmpty()) {
-							var to = context.getBestLocalNic();
-							LOG.info("Adding MASQUERADE rules for {} to {}", iface, to.getName());
+							LOG.info("Adding MASQUERADE rules for {} to {}", iface, local.getName());
 							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", iface);
-							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", to.getName(), "-o", iface);
+							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", local.getName(), "-o", iface);
 						}
 						else {
 							for(var in : masq.out()) {
