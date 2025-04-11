@@ -46,6 +46,8 @@ public class RemoteNetworkInterface extends Struct implements NetworkInterfaceIn
 	@Position(4)
 	private int index;
 	@Position(5)
+	private boolean loopback;
+	@Position(6)
 	private RemoteInterfaceAddress[] interfaceAddresses;
 
 	public RemoteNetworkInterface(NetworkInterfaceInfo<?> nativeInterface) {
@@ -55,13 +57,14 @@ public class RemoteNetworkInterface extends Struct implements NetworkInterfaceIn
 		this.mtu = nativeInterface.getMtu();
 		this.index = nativeInterface.getIndex();
 		this.interfaceAddresses = Arrays.asList(nativeInterface.getInterfaceAddresses()).stream().map(RemoteInterfaceAddress::new).toList().toArray(new RemoteInterfaceAddress[0]);
+		this.loopback = nativeInterface.isLoopback();
 	}
 
 	public RemoteNetworkInterface() {
 	}
 
 	public RemoteNetworkInterface(String name, String displayName, String hardwareAddress, int mtu, int index,
-			RemoteInterfaceAddress[] interfaceAddresses) {
+			boolean loopback, RemoteInterfaceAddress[] interfaceAddresses) {
 		super();
 		this.name = name;
 		this.displayName = displayName;
@@ -69,6 +72,7 @@ public class RemoteNetworkInterface extends Struct implements NetworkInterfaceIn
 		this.mtu = mtu;
 		this.index = index;
 		this.interfaceAddresses = interfaceAddresses;
+		this.loopback = loopback;
 	}
 
 	@Override
@@ -99,6 +103,11 @@ public class RemoteNetworkInterface extends Struct implements NetworkInterfaceIn
 	@Override
 	public final RemoteInterfaceAddress[] getInterfaceAddresses() {
 		return interfaceAddresses;
+	}
+
+	@Override
+	public boolean isLoopback() {
+		return loopback;
 	}
 
 

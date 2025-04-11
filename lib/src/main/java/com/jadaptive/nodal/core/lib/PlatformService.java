@@ -440,7 +440,7 @@ public interface PlatformService<ADDR extends VpnAddress> {
 	public final static class NativeInterfaceAddressInfo implements InterfaceAddressInfo {
 		private final InterfaceAddress address;
 
-		private NativeInterfaceAddressInfo(InterfaceAddress address) {
+		NativeInterfaceAddressInfo(InterfaceAddress address) {
 			this.address = address;
 		}
 
@@ -466,13 +466,15 @@ public interface PlatformService<ADDR extends VpnAddress> {
 		private final String hwaddr;
 		private final int mtu;
 		private final NativeInterfaceAddressInfo[] addresses;
+		private final boolean loopback;
 
-		private NativeNetworkInterfaceInfo(NetworkInterface networkInterface) {
+		NativeNetworkInterfaceInfo(NetworkInterface networkInterface) {
 			this.networkInterface = networkInterface;
 			try {
 				hwaddr = IpUtil.toIEEE802(networkInterface.getHardwareAddress());
 				mtu = networkInterface.getMTU();
 				addresses = networkInterface.getInterfaceAddresses().stream().map(NativeInterfaceAddressInfo::new).toList().toArray(new NativeInterfaceAddressInfo[0]);
+				loopback = networkInterface.isLoopback();
 			} catch (SocketException e) {
 				throw new UncheckedIOException(e);
 			}
@@ -506,6 +508,11 @@ public interface PlatformService<ADDR extends VpnAddress> {
 		@Override
 		public NativeInterfaceAddressInfo[] getInterfaceAddresses() {
 			return addresses;
+		}
+
+		@Override
+		public boolean isLoopback() {
+			return loopback;
 		}
 		
 	}

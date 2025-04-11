@@ -23,11 +23,13 @@ package com.jadaptive.nodal.core.lib;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Optional;
 
+import com.jadaptive.nodal.core.lib.PlatformService.NativeNetworkInterfaceInfo;
 import com.sshtools.liftlib.OS;
 
 public interface VpnAddress {
@@ -56,21 +58,22 @@ public interface VpnAddress {
 				var loopback = true;
 				for (var addr : nif.getInterfaceAddresses()) {
 					var ipAddr = addr.getAddress();
-					if (!ipAddr.isAnyLocalAddress() && !ipAddr.isLinkLocalAddress()
-							&& !ipAddr.isLoopbackAddress()) {
+					var inetAddr = InetAddress.getByName(ipAddr);
+					if (!inetAddr.isAnyLocalAddress() && !inetAddr.isLinkLocalAddress()
+							&& !inetAddr.isLoopbackAddress()) {
 						loopback = false;
 					}
 				}
 				
 				return loopback;
 				
-			} catch (SocketException e) {
+			} catch (UnknownHostException e) {
 				return false;
 			} 
 		}).orElse(false);
 	}
 	
-	default Optional<NetworkInterface> networkInterface() {
+	default Optional<NetworkInterfaceInfo<?>> networkInterface() {
 		/* NOTE: This is pretty much useless  to lookup the network by the 
 		 * name we know it as on Windows, as for some bizarre reason,
 		 * net8 for example (as would show ip "ipconfig /all") comes back 
@@ -83,7 +86,7 @@ public interface VpnAddress {
 			for(Enumeration<NetworkInterface> nifEnum = NetworkInterface.getNetworkInterfaces(); nifEnum.hasMoreElements(); ) {
 				NetworkInterface nif = nifEnum.nextElement();
 				if(nif.getName().equals(nativeName()))
-					return Optional.of(nif);
+					return Optional.of(new NativeNetworkInterfaceInfo(nif));
 			}
 			return Optional.empty();
 		}

@@ -87,4 +87,7 @@ public interface RemoteVpnAddress  extends DBusInterface {
 
     void up() throws IOException;
 
+    @DBusBoundProperty(access = Access.READ, name = "NetworkInterface")
+	RemoteNetworkInterface getNetworkInterface();
+
 }

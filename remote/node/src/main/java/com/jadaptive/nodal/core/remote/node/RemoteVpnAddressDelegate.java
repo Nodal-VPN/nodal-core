@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 
 import com.jadaptive.nodal.core.lib.VpnAddress;
+import com.jadaptive.nodal.core.remote.lib.RemoteNetworkInterface;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnAddress;
 
 import uk.co.bithatch.nativeimage.annotations.Proxy;
@@ -144,5 +145,10 @@ public class RemoteVpnAddressDelegate implements RemoteVpnAddress {
     public boolean hasVirtualName() {
         return delegate.hasVirtualName();
     }
+
+	@Override
+	public RemoteNetworkInterface getNetworkInterface() {
+		return delegate.networkInterface().map(RemoteNetworkInterface::new).orElseThrow(() -> new IllegalStateException("No network interface"));
+	}
 
 }

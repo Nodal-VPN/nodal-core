@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jadaptive.nodal.core.lib.AbstractUnixAddress;
+import com.jadaptive.nodal.core.lib.NetworkInterfaceInfo;
 import com.jadaptive.nodal.core.lib.util.IpUtil;
 import com.jadaptive.nodal.core.lib.util.OsUtil;
 import com.jadaptive.nodal.core.lib.util.Util;
@@ -121,7 +120,7 @@ public class UserspaceMacOsAddress extends AbstractUnixAddress<UserspaceMacOsPla
 	@Override
 	public String displayName() {
 		try {
-			return networkInterface().map(NetworkInterface::getDisplayName).orElse("Unknown");
+			return networkInterface().map(NetworkInterfaceInfo::getDisplayName).orElse("Unknown");
 		} catch (UncheckedIOException ioe) {
 			return "Unknown";
 		}
@@ -129,13 +128,7 @@ public class UserspaceMacOsAddress extends AbstractUnixAddress<UserspaceMacOsPla
 
 	@Override
 	public String getMac() {
-        return networkInterface().map(nif -> {
-			try {
-				return IpUtil.toIEEE802(nif.getHardwareAddress());
-			} catch (SocketException e) {
-				return null;
-			}
-		}).orElse(null);
+        return networkInterface().map(NetworkInterfaceInfo::getHardwareAddress).orElse(null);
 	}
 
 	public boolean hasAddress(String address) {

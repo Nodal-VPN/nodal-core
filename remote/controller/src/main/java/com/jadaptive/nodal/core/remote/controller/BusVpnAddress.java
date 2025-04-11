@@ -22,9 +22,9 @@
 package com.jadaptive.nodal.core.remote.controller;
 
 import java.io.IOException;
-import java.net.NetworkInterface;
 import java.util.Optional;
 
+import com.jadaptive.nodal.core.lib.NetworkInterfaceInfo;
 import com.jadaptive.nodal.core.lib.VpnAddress;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnAddress;
 
@@ -114,8 +114,13 @@ public class BusVpnAddress implements VpnAddress {
     }
 
     @Override
-    public Optional<NetworkInterface> networkInterface() {
-        return Optional.empty();
+    public Optional<NetworkInterfaceInfo<?>> networkInterface() {
+    	try {
+    		return Optional.of(remote.getNetworkInterface());
+    	}
+    	catch(Exception e) {
+    		return Optional.empty();
+    	}
     }
 
     @Override
