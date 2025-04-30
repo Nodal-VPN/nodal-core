@@ -309,8 +309,16 @@ public class RemotePlatformServiceDelegate implements RemotePlatformService, Clo
     }
 
     private void exportAndAdd(RemoteVpnAddressDelegate ra) throws DBusException {
-    	LOG.info("Exporting for {}", ra.nativeName());
-        connection.exportObject(ra);
+    	
+    	try {
+    		connection.getExportedObject(ra);
+    	}
+    	catch(DBusException dbe) {
+    		/* TODO bit crap, there is no "isExported" */
+        	LOG.info("Exporting for {}", ra.nativeName());
+        	connection.exportObject(ra);
+    	}
+    	
         addresses.put(ra.nativeName(), ra);
     }
 
