@@ -304,22 +304,20 @@ public class RemotePlatformServiceDelegate implements RemotePlatformService, Clo
     }
 
     private void unexportAndRemove(RemoteVpnAddressDelegate ra)  {
-        addresses.remove(ra.nativeName());
-        connection.unExportObject(ra.getObjectPath());
+    	try {
+    		connection.unExportObject(ra.getObjectPath());
+    	}
+    	finally {
+    		addresses.remove(ra.nativeName());
+    	}
     }
 
     private void exportAndAdd(RemoteVpnAddressDelegate ra) throws DBusException {
-    	
-    	try {
-    		connection.getExportedObject(ra);
-    	}
-    	catch(DBusException dbe) {
-    		/* TODO bit crap, there is no "isExported" */
+    	if(!addresses.containsKey(ra.nativeName())) {
         	LOG.info("Exporting for {}", ra.nativeName());
         	connection.exportObject(ra);
+    		addresses.put(ra.nativeName(), ra);
     	}
-    	
-        addresses.put(ra.nativeName(), ra);
     }
 
     private void updateAddresses() throws DBusException {
