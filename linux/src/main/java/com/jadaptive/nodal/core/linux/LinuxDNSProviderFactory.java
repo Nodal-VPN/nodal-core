@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.jadaptive.nodal.core.lib.SystemContext;
+import com.jadaptive.nodal.core.linux.dbus.NetworkManager;
 import com.sshtools.liftlib.OS;
 
 /**
@@ -96,7 +97,13 @@ public class LinuxDNSProviderFactory implements DNSProvider.Factory {
             } else if (p.equals(runPath().toString() + "/resolvconf/resolv.conf")) {
                 return ResolvConfDNSProvider.class;
             } else if (p.equals(runPath().toString() + "/netconfig/resolv.conf")) {
-                return NetconfigDNSProvider.class;
+                var nmIntegrated = runPath().resolve("netconfig").resolve("NetworkManager.netconfig");
+                if(Files.exists(nmIntegrated)) {
+                    return NetworkManagerDNSProvider.class;
+                }
+                else {
+                    return NetconfigDNSProvider.class;
+                }
             }
         } catch (IOException ioe) {
         }
