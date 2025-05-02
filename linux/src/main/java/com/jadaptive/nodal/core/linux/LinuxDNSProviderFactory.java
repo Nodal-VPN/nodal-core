@@ -65,6 +65,8 @@ public class LinuxDNSProviderFactory implements DNSProvider.Factory {
                 return new SystemDDNSProvider();
             } else if (clazzVal.equals(RawDNSProvider.class)) {
                 return new RawDNSProvider();
+            }  else if (clazzVal.equals(NetconfigDNSProvider.class)) {
+                return new NetconfigDNSProvider();
             } else
                 throw new IllegalArgumentException(clazzVal.toString());
         } else {
@@ -93,6 +95,8 @@ public class LinuxDNSProviderFactory implements DNSProvider.Factory {
                 return SystemDDNSProvider.class;
             } else if (p.equals(runPath().toString() + "/resolvconf/resolv.conf")) {
                 return ResolvConfDNSProvider.class;
+            } else if (p.equals(runPath().toString() + "/netconfig/resolv.conf")) {
+                return NetconfigDNSProvider.class;
             }
         } catch (IOException ioe) {
         }
