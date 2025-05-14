@@ -35,6 +35,10 @@ import com.jadaptive.nodal.core.lib.ipmath.Ipv6Range;
 public class IpUtil {
 	
 	public static AbstractIp<?, ?> parse(String ip) {
+		var idx = ip.lastIndexOf('%');
+		if(idx != -1) {
+			ip = ip.substring(0, idx);
+		}
 		try {
 			return Ipv4.of(ip);
 		}
