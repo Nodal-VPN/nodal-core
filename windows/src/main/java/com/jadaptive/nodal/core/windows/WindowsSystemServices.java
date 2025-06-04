@@ -70,7 +70,9 @@ public class WindowsSystemServices implements Closeable {
     @TypeReflect(methods = true, classes = true)
 	public interface XAdvapi32 extends Advapi32 {
 
-		class QUERY_SERVICE_CONFIG extends Structure {
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
+		public static class QUERY_SERVICE_CONFIG extends Structure {
 			public DWORD dwServiceType;
 			public DWORD dwStartType;
 			public DWORD dwErrorControl;
@@ -81,10 +83,10 @@ public class WindowsSystemServices implements Closeable {
 			public char[] lpServiceStartName;
 			public char[] lpDisplayName;
 
-			QUERY_SERVICE_CONFIG() {
+			public QUERY_SERVICE_CONFIG() {
 			}
 
-			QUERY_SERVICE_CONFIG(int size) {
+			public QUERY_SERVICE_CONFIG(int size) {
 				lpBinaryPathName = new char[256];
 				lpLoadOrderGroup = new char[256];
 				lpDependencies = new char[256];
@@ -97,6 +99,8 @@ public class WindowsSystemServices implements Closeable {
 
 		/**
 		 */
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
 		public static class SID_IDENTIFIER_AUTHORITY extends Structure {
 
 			/**
@@ -670,6 +674,8 @@ public class WindowsSystemServices implements Closeable {
     @TypeReflect(methods = true, classes = true)
 	public interface XWinsvc extends Winsvc {
 
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
 		@FieldOrder({ "lpServiceName", "lpDisplayName", "ServiceStatusProcess" })
 		public static class ENUM_SERVICE_STATUS_PROCESS extends Structure {
 			public Pointer lpServiceName;
@@ -686,6 +692,8 @@ public class WindowsSystemServices implements Closeable {
 			}
 		}
 
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
 		@FieldOrder({ "fDelayedAutostart" })
 		public class SERVICE_DELAYED_AUTO_START_INFO extends ChangeServiceConfig2Info {
 			public static class ByReference extends SERVICE_DELAYED_AUTO_START_INFO implements Structure.ByReference {
@@ -694,6 +702,8 @@ public class WindowsSystemServices implements Closeable {
 			public boolean fDelayedAutostart;
 		}
 
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
 		@FieldOrder({ "lpDescription" })
 		public class SERVICE_DESCRIPTION extends ChangeServiceConfig2Info {
 			public static class ByReference extends SERVICE_DESCRIPTION implements Structure.ByReference {
@@ -702,6 +712,8 @@ public class WindowsSystemServices implements Closeable {
 			public String lpDescription;
 		}
 
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
 		@FieldOrder({ "dwServiceSidType" })
 		public class SERVICE_SID_INFO extends ChangeServiceConfig2Info {
 			public static class ByReference extends SERVICE_SID_INFO implements Structure.ByReference {
