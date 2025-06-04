@@ -21,13 +21,12 @@
  */
 package com.jadaptive.nodal.core.windows;
 
+import com.jadaptive.nodal.core.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.PlatformService;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import com.jadaptive.nodal.core.lib.DNSProvider;
-import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
-import com.jadaptive.nodal.core.lib.PlatformService;
 
 public class NullDNSProvider implements DNSProvider {
 

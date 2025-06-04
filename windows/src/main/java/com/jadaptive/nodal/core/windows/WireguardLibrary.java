@@ -49,6 +49,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import uk.co.bithatch.nativeimage.annotations.Proxy;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
 /**
  * JNA interface to wireguard.dll.
@@ -277,7 +279,9 @@ public interface WireguardLibrary extends Library {
         public final static int hasListenPort = 1 << 2;
         public final static int replacePeers = 1 << 3;
     }
-    
+
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"flags", "listenPort", "privateKey", "publicKey", "peersCount", "reserved"})
     public class IoctlInterface extends Structure {
         public int flags;
@@ -309,6 +313,8 @@ public interface WireguardLibrary extends Library {
         public final static int updateOnly = 1 << 7;
     }
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"bytes", "reserved"})
     public static class IN_ADDR  extends Structure {
         public byte[] bytes = new byte[4];
@@ -316,12 +322,16 @@ public interface WireguardLibrary extends Library {
         
     }
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"bytes"})
     public static class IN6_ADDR  extends Structure {
         public byte[] bytes = new byte[16];
         
     }
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"sin_family", "sin_port", "sin_addr"})
     public static class SOCKADDR_IN extends Structure {
         public short sin_family;
@@ -331,6 +341,8 @@ public interface WireguardLibrary extends Library {
     }
 
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"sin6_family", "sin6_port", "sin6_flowinfo", "sin6_addr", "sin6_scope_id"})
     public static class SOCKADDR_IN6 extends Structure {
         public short sin6_family;
@@ -341,13 +353,17 @@ public interface WireguardLibrary extends Library {
     }
 
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     public static class SOCKADDR_INET extends Union {
         public SOCKADDR_IN ipv4;
         public SOCKADDR_IN6 ipv6;
         public short si_family;
     }
             
-    
+
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"flags", "reserved", "publicKey", "presharedKey", "persistentKeepalive", "endpoint", "txBytes", "rxBytes", "lastHandshake", "allowedIPsCount"})
     public class IoctlPeer extends Structure {
         public int flags;
@@ -373,6 +389,8 @@ public interface WireguardLibrary extends Library {
         }
     }
 
+    @Reflectable
+    @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"address", "address_family", "cidr", "reserved"}) 
     public static class IoctlAllowedIP extends Structure {
     	public static class IoctlAllowedIPUnion extends Union {
