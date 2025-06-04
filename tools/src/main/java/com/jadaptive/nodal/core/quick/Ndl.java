@@ -55,14 +55,14 @@ import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
-@Command(name = "lbv", description = "Set and retrieve configuration of wireguard interfaces, a Java clone of the 'wg' command.", mixinStandardHelpOptions = true, subcommands = {
-        Lbv.Show.class, Lbv.ShowConf.class, Lbv.SetConf.class, Lbv.SyncConf.class, Lbv.AddConf.class, Lbv.GenKey.class, Lbv.GenPsk.class, Lbv.PubKey.class })
-public class Lbv extends AbstractCommand implements SystemContext {
+@Command(name = "ndl", description = "Set and retrieve configuration of wireguard interfaces, a Java clone of the 'wg' command.", mixinStandardHelpOptions = true, subcommands = {
+        Ndl.Show.class, Ndl.ShowConf.class, Ndl.SetConf.class, Ndl.SyncConf.class, Ndl.AddConf.class, Ndl.GenKey.class, Ndl.GenPsk.class, Ndl.PubKey.class })
+public class Ndl extends AbstractCommand implements SystemContext {
 
     final static PrintStream out = System.out;
 
     public static void main(String[] args) throws Exception {
-        Lbv cmd = new Lbv();
+        Ndl cmd = new Ndl();
         System.exit(new CommandLine(cmd).setExecutionExceptionHandler(new ExceptionHandler(cmd)).execute(args));
     }
 
@@ -126,7 +126,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class Show implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Parameters(arity = "0..1")
         private Optional<String> iface;
@@ -565,7 +565,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class ShowConf implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Parameters(arity = "1")
         private String iface;
@@ -582,7 +582,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class SetConf implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Parameters(index = "0", arity = "1")
         private String iface;
@@ -602,7 +602,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class SyncConf implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Parameters(index = "0", arity = "1")
         private String iface;
@@ -622,7 +622,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class AddConf implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Parameters(index = "0", arity = "1")
         private String iface;
@@ -642,7 +642,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public static class GenKey implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Override
         public Integer call() throws Exception {
@@ -660,7 +660,7 @@ public class Lbv extends AbstractCommand implements SystemContext {
     public final static class PubKey implements Callable<Integer> {
 
         @ParentCommand
-        private Lbv parent;
+        private Ndl parent;
 
         @Override
         public Integer call() throws Exception {

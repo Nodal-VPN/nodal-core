@@ -86,15 +86,15 @@ import picocli.CommandLine.ParentCommand;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbv-quick", description = "Set up a WireGuard interface simply.", mixinStandardHelpOptions = true, subcommands = {
-        LbvQuick.Up.class, LbvQuick.Down.class, LbvQuick.Expire.class, LbvQuick.Unexpire.class,
-        LbvQuick.Strip.class, LbvQuick.Safe.class, LbvQuick.DNS.class, LbvQuick.DNSProviders.class
+@Command(name = "ndl-quick", description = "Set up a WireGuard interface simply.", mixinStandardHelpOptions = true, subcommands = {
+        NdlQuick.Up.class, NdlQuick.Down.class, NdlQuick.Expire.class, NdlQuick.Unexpire.class,
+        NdlQuick.Strip.class, NdlQuick.Safe.class, NdlQuick.DNS.class, NdlQuick.DNSProviders.class
 })
 @Resource({ "windows-task\\.xml" })
 @Bundle
-public class LbvQuick extends AbstractCommand implements SystemContext {
+public class NdlQuick extends AbstractCommand implements SystemContext {
 
-    public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(LbvQuick.class.getName());
+    public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(NdlQuick.class.getName());
 
     private final class LbvConfiguration implements SystemConfiguration {
         @Override
@@ -139,7 +139,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
     final static PrintStream out = System.out;
 
     public static void main(String[] args) throws Exception {
-        var cmd = new LbvQuick();
+        var cmd = new NdlQuick();
         System.exit(new CommandLine(cmd).setExecutionExceptionHandler(new ExceptionHandler(cmd)).execute(args));
     }
 
@@ -259,7 +259,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
         private static final String OAUTH_SCOPE = "getVpn";
 
         @ParentCommand
-        protected LbvQuick parent;
+        protected NdlQuick parent;
 
         @Option(names = { 
                 "--ignore-ssl-trust" }, description = "When this option is present, SSL certificate trust issues will be ignored. Only used when retrieving configuration from a URL ('up' command).")
@@ -300,8 +300,11 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
                 
             	try {
             		var uri = URI.create(configFileOrInterface);
+            		if(uri.getScheme() == null) {
+                        throw new URISyntaxException(configFileOrInterface, "No scheme.");
+            		}
             		
-            		if(uri.getScheme().equals("http") && !uri.getScheme().equals("https")) {
+            		if(!uri.getScheme().equals("http") && !uri.getScheme().equals("https")) {
             		    throw new URISyntaxException(configFileOrInterface, "Incorrect scheme.");
             		}
 
@@ -377,7 +380,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
             onBuild(bldr);
 
             var vpn = bldr.build();
-            vpn.platformService().context().commands().onLog(LbvQuick::logCommandLine);
+            vpn.platformService().context().commands().onLog(NdlQuick::logCommandLine);
             return onCall(vpn, file, ifaceName);
         }
         
@@ -615,7 +618,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
     public final static class DNS implements Callable<Integer> {
 
         @ParentCommand
-        protected LbvQuick parent;
+        protected NdlQuick parent;
 
         @Override
         public Integer call() throws Exception {
@@ -634,7 +637,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
     public final static class DNSProviders implements Callable<Integer> {
 
         @ParentCommand
-        protected LbvQuick parent;
+        protected NdlQuick parent;
 
         @Override
         public Integer call() throws Exception {
@@ -765,7 +768,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 			if(OS.hasCommand("systemd-run")) {
 				try {
 					var jobStr = context.commands().privileged()
-							.task(new Prefs.GetValue(true, LbvQuick.class.getPackageName().replace('.', '/') + "/jobs",
+							.task(new Prefs.GetValue(true, NdlQuick.class.getPackageName().replace('.', '/') + "/jobs",
 									vpn.adapter().address().nativeName(), null));
 					if (jobStr == null) {
 						return;
@@ -780,7 +783,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 					} finally {
 						context.commands().privileged()
 								.task(new Prefs.RemoveKey(true,
-										LbvQuick.class.getPackageName().replace('.', '/') + "/jobs",
+										NdlQuick.class.getPackageName().replace('.', '/') + "/jobs",
 										vpn.adapter().address().nativeName()));
 					}
 				} catch (Exception e) {
@@ -789,7 +792,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 			else if(OS.hasCommand("at")) {
 				try {
 					var jobStr = context.commands().privileged().task(new Prefs.GetValue(
-							true, LbvQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), null)
+							true, NdlQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), null)
 					);
 					if(jobStr == null) {
 						return;
@@ -801,7 +804,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 					}
 					finally {
 						context.commands().privileged().task(new Prefs.RemoveKey(
-								true, LbvQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName())
+								true, NdlQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName())
 						);
 					}
 				} catch (Exception e) {
@@ -823,7 +826,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 			}
 		}
 		else if(OS.isMacOs()) {
-			var task = LbvQuick.class.getPackage().getName() + ".expire." + vpn.adapter().address().nativeName(); 
+			var task = NdlQuick.class.getPackage().getName() + ".expire." + vpn.adapter().address().nativeName(); 
 			var file = "/Library/LaunchDaemons/" + task + ".plist";
 			
 			loggedCmds.stderr(ProcessRedirect.DISCARD).result(
@@ -859,7 +862,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 						if(arg.endsWith(".timer")) {
 							try {
 								context.commands().privileged().task(new Prefs.PutValue(
-										true, LbvQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), arg, PrefType.STRING
+										true, NdlQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), arg, PrefType.STRING
 								));
 								return;
 							}
@@ -876,7 +879,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 				var cmds = Arrays.asList("at", "-M", "now + " + time + " minutes");
 				logCommandLine(cmds.toArray(new String[0]));
 				
-				var taskCmd = String.join(" ", taskArgs.stream().map(LbvQuick::wrapWithQuotes).collect(Collectors.toList()));
+				var taskCmd = String.join(" ", taskArgs.stream().map(NdlQuick::wrapWithQuotes).collect(Collectors.toList()));
 				for(var line : context.commands().privileged().pipeTo(taskCmd, cmds.toArray(new String[0]))) {
 					if(line.startsWith("job ")) {
 						var args = line.split("\\s+");
@@ -884,7 +887,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 							try {
 								var jobId = Long.parseLong(args[1]);
 								context.commands().privileged().task(new Prefs.PutValue(
-										true, LbvQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), jobId, PrefType.LONG
+										true, NdlQuick.class.getPackageName().replace('.', '/') + "/jobs", vpn.adapter().address().nativeName(), jobId, PrefType.LONG
 								));
 								return;
 							}
@@ -912,7 +915,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 				var xmlFile = Files.createTempFile("vpntask", ".xml");
 				try {
 					var wrt = new StringWriter();
-					try(var in = new InputStreamReader(LbvQuick.class.getResourceAsStream("/windows-task.xml"), "UTF-16")) {
+					try(var in = new InputStreamReader(NdlQuick.class.getResourceAsStream("/windows-task.xml"), "UTF-16")) {
 						in.transferTo(wrt);
 					}
 					var str = wrt.toString();
@@ -922,7 +925,7 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 					str = str.replace("${cmd}", taskArgs.get(0));
 					str = str.replace("${cwd}", System.getProperty("user.dir"));
 					str = str.replace("${args}", String.join(" ", 
-							taskArgs.subList(1, taskArgs.size()).stream().map(LbvQuick::wrapWithEncodedQuotes).collect(Collectors.toList())));
+							taskArgs.subList(1, taskArgs.size()).stream().map(NdlQuick::wrapWithEncodedQuotes).collect(Collectors.toList())));
 					
 					try(var out = new PrintWriter(Files.newBufferedWriter(xmlFile))) {
 						out.println(str);
@@ -949,11 +952,11 @@ public class LbvQuick extends AbstractCommand implements SystemContext {
 		else if(OS.isMacOs()) {
 			taskArgs.add("--delay-expire");
 			var wrt = new StringWriter();
-			try(var in = new InputStreamReader(LbvQuick.class.getResourceAsStream("/macos-task.plist"), "UTF-8")) {
+			try(var in = new InputStreamReader(NdlQuick.class.getResourceAsStream("/macos-task.plist"), "UTF-8")) {
 				in.transferTo(wrt);
 			}
 			var str = wrt.toString();
-			var task = LbvQuick.class.getPackage().getName() + ".expire." + vpn.adapter().address().nativeName(); 
+			var task = NdlQuick.class.getPackage().getName() + ".expire." + vpn.adapter().address().nativeName(); 
 			str = str.replace("${task}", task);
 			str = str.replace("${nativeName}", vpn.adapter().address().nativeName());
 			str = str.replace("${args}", String.join(System.lineSeparator(), 

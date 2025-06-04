@@ -35,7 +35,7 @@ Install the latest Graal SDK, set `GRAAL_VM_HOME` and `JAVA_HOME` to point to th
 mvn clean package -P native-image
 ```
 
-This will produce two executables in `target`, `dft-recv` and `dft-send`.
+This will produce three executables in `target`, `ndl`, `ndl-quick` and `ndl-remote-node-agent`.
 
 There are other profiles you can add for native images. `-P` expects a comma separated list
 of profiles.

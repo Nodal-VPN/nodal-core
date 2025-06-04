@@ -56,9 +56,9 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Command(name = "lbv-remote-node-agent", description = "Exposes the VPN driver API over D-Bus.", mixinStandardHelpOptions = true)
 @Resource({ "windows-task\\.xml" })
 @Bundle
-public class LbvRemoteNodeAgent extends AbstractCommand implements SystemContext {
+public class NdlRemoteNodeAgent extends AbstractCommand implements SystemContext {
 
-    public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(LbvRemoteNodeAgent.class.getName());
+    public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(NdlRemoteNodeAgent.class.getName());
 
     private final class LbvConfiguration implements SystemConfiguration {
         @Override
@@ -103,7 +103,7 @@ public class LbvRemoteNodeAgent extends AbstractCommand implements SystemContext
     final static PrintStream out = System.out;
 
     public static void main(String[] args) throws Exception {
-        var cmd = new LbvRemoteNodeAgent();
+        var cmd = new NdlRemoteNodeAgent();
         System.exit(new CommandLine(cmd).setExecutionExceptionHandler(new ExceptionHandler(cmd)).execute(args));
     }
 
