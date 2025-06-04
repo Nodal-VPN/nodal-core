@@ -189,6 +189,8 @@
                                         <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                         <buildArg>-R:MaxHeapSize=64m</buildArg>
 										<buildArg>--install-exit-handlers</buildArg>
+                                        <buildArg>-H:+AddAllCharsets</buildArg>
+                                        <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
                                         
                                         <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>
@@ -216,6 +218,8 @@
 										<buildArg>--enable-http</buildArg>
 										<buildArg>--enable-https</buildArg>
 										<buildArg>--enable-url-protocols=http,https</buildArg>
+                                        <buildArg>-H:+AddAllCharsets</buildArg>
+                                        <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
                                         
                                         <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>
@@ -242,6 +246,8 @@
 										<buildArg>--enable-http</buildArg>
 										<buildArg>--enable-https</buildArg>
 										<buildArg>--enable-url-protocols=http,https</buildArg>
+                                        <buildArg>-H:+AddAllCharsets</buildArg>
+                                        <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
                                         
                                         <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>

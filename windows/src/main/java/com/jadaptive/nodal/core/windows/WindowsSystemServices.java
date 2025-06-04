@@ -28,6 +28,10 @@ import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
+import uk.co.bithatch.nativeimage.annotations.Proxy;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +65,9 @@ public class WindowsSystemServices implements Closeable {
 	 * Extension the JNA Platform's {@link Advapi32} that adds some functions
 	 * required by Forker.
 	 */
+    @Proxy
+    @Reflectable
+    @TypeReflect(methods = true, classes = true)
 	public interface XAdvapi32 extends Advapi32 {
 
 		class QUERY_SERVICE_CONFIG extends Structure {
@@ -658,6 +665,9 @@ public class WindowsSystemServices implements Closeable {
 				com.sun.jna.platform.win32.Winsvc.Handler lpHandlerProc);
 	}
 
+    @Proxy
+    @Reflectable
+    @TypeReflect(methods = true, classes = true)
 	public interface XWinsvc extends Winsvc {
 
 		@FieldOrder({ "lpServiceName", "lpDisplayName", "ServiceStatusProcess" })
