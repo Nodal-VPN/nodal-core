@@ -359,6 +359,8 @@ public interface WireguardLibrary extends Library {
         public SOCKADDR_IN ipv4;
         public SOCKADDR_IN6 ipv6;
         public short si_family;
+        
+        public SOCKADDR_INET() {}
     }
             
 
@@ -393,9 +395,14 @@ public interface WireguardLibrary extends Library {
     @TypeReflect(fields = true, constructors = true)
     @FieldOrder({"address", "address_family", "cidr", "reserved"}) 
     public static class IoctlAllowedIP extends Structure {
+
+        @Reflectable
+        @TypeReflect(fields = true, constructors = true)
     	public static class IoctlAllowedIPUnion extends Union {
             public IN_ADDR ipv4;
             public IN6_ADDR ipv6;
+            
+            public IoctlAllowedIPUnion() {}
         }
     	
     	public IoctlAllowedIPUnion address;
