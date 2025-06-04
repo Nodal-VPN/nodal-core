@@ -175,11 +175,11 @@ pipeline {
 					 		}
         				}
                         
-                        tar file: 'target/jadaptive-tools-macos-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-tools-macos-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: 'ndl*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                             
-                        tar file: 'target/jadaptive-library-macos-x64-' + env.FULL_VERSION + '.tar.gz',
+                        tar file: 'target/nodal-core-library-macos-x64-' + env.FULL_VERSION + '.tar.gz',
                             glob: '*.dylib,*.h,*.txt,LICENSE',  exclude: 'libawt*,libjvm*,libjava*', overwrite: true,
                             compress: true
                 
@@ -289,7 +289,7 @@ pipeline {
 					 		}
         				}
                         
-                        zip zipFile: 'target/nodal-core-windows-x64-' + env.FULL_VERSION + '.zip',
+                        zip zipFile: 'target/nodal-core-tools-windows-x64-' + env.FULL_VERSION + '.zip',
                             glob: 'ndl*',  overwrite: true,
                             dir: 'tools/target'
                             

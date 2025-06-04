@@ -101,7 +101,7 @@
 				</os>
 			</activation>
 			<properties>				
-				<graalvm.libName>ndv</graalvm.libName>
+				<graalvm.libName>ndl</graalvm.libName>
 				<graalvm.firstArgs>-H:+UnlockExperimentalVMOptions -H:+AddAllCharsets</graalvm.firstArgs>
                 <graalvm.outputDir>${project.build.directory}\lib</graalvm.outputDir>
                 <graalvm.libPath>${graalvm.outputDir}\${graalvm.libName}</graalvm.libPath>
