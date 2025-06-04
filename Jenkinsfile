@@ -66,7 +66,7 @@ pipeline {
         				}
         				
         				tar file: 'target/nodal-core-tools-linux-x64-' + env.FULL_VERSION + '.tar.gz',
-        				    glob: 'lbv*',  exclude: '*.*', overwrite: true,
+        				    glob: 'ndl*',  exclude: '*.*', overwrite: true,
         				    compress: true, dir: 'tools/target'
                         
                         tar file: 'target/nodal-core-library-linux-x64-' + env.FULL_VERSION + '.tar.gz',
@@ -121,7 +121,7 @@ pipeline {
                         }
                         
                         tar file: 'target/nodal-core-tools-linux-aarch64-' + env.FULL_VERSION + '.tar.gz',
-                            glob: 'lbv*',  exclude: '*.*', overwrite: true,
+                            glob: 'ndl*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                         
                         tar file: 'target/nodal-core-library-aarch64-x64-' + env.FULL_VERSION + '.tar.gz',
@@ -176,7 +176,7 @@ pipeline {
         				}
                         
                         tar file: 'target/jadaptive-tools-macos-x64-' + env.FULL_VERSION + '.tar.gz',
-                            glob: 'lbv*',  exclude: '*.*', overwrite: true,
+                            glob: 'ndl*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                             
                         tar file: 'target/jadaptive-library-macos-x64-' + env.FULL_VERSION + '.tar.gz',
@@ -231,7 +231,7 @@ pipeline {
                         }
                         
                         tar file: 'target/nodal-core-tools-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
-                            glob: 'lbv*',  exclude: '*.*', overwrite: true,
+                            glob: 'ndl*',  exclude: '*.*', overwrite: true,
                             compress: true, dir: 'tools/target'
                             
                         tar file: 'target/nodal-core-library-macos-aarch64-' + env.FULL_VERSION + '.tar.gz',
@@ -290,11 +290,11 @@ pipeline {
         				}
                         
                         zip zipFile: 'target/nodal-core-windows-x64-' + env.FULL_VERSION + '.zip',
-                            glob: 'lbv*',  overwrite: true,
+                            glob: 'ndl*',  overwrite: true,
                             dir: 'tools/target'
                             
                         zip zipFile: 'target/nodal-core-library-windows-x64-' + env.FULL_VERSION + '.zip',
-                            glob: 'lbv*.dll,*.h',  exclude: 'reports,libawt*,libjvm*,libjava*', overwrite: true,
+                            glob: 'ndl*.dll,*.h',  exclude: 'reports,libawt*,libjvm*,libjava*', overwrite: true,
                             dir: '.'
                 
                         s3Upload(

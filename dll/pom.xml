@@ -139,7 +139,7 @@
 						<artifactId>native-maven-plugin</artifactId>
 						<executions>
                             <execution>
-                                <id>lbvdll</id>
+                                <id>ndldll</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
@@ -199,7 +199,7 @@
 						</configuration>
 						<executions>
                             <execution>
-                                <id>lbvdll</id>
+                                <id>ndldll</id>
                                 <goals>
                                     <goal>compile-no-fork</goal>
                                 </goals>
