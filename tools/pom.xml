@@ -191,8 +191,8 @@
 										<buildArg>--install-exit-handlers</buildArg>
                                         <buildArg>-H:+AddAllCharsets</buildArg>
                                         <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
-                                        
-                                        <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
+
+										<!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>
                                         <buildArgs>-march=compatibility</buildArgs>
                                     </buildArgs>
@@ -220,8 +220,8 @@
 										<buildArg>--enable-url-protocols=http,https</buildArg>
                                         <buildArg>-H:+AddAllCharsets</buildArg>
                                         <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
-                                        
-                                        <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
+
+										<!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>
                                     </buildArgs>
                                      <metadataRepository>
@@ -248,8 +248,8 @@
 										<buildArg>--enable-url-protocols=http,https</buildArg>
                                         <buildArg>-H:+AddAllCharsets</buildArg>
                                         <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
-                                        
-                                        <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
+
+										<!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=win32.*</buildArg>
                                     </buildArgs>
                                      <metadataRepository>
@@ -263,6 +263,68 @@
             </build>
         </profile>
 
+        <profile>
+            <id>windows-signing</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+           
+            <build>
+                <plugins>
+					<plugin>
+						<groupId>net.jsign</groupId>
+						<artifactId>jsign-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-windows-ndl</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<file>target/ndl.exe</file>
+									<name>Nodal Core Tool</name>
+									<url>https://jadaptive.com</url>
+									<storetype>ETOKEN</storetype>
+									<storepass>${install4j.safeNet.pin}</storepass>
+									<keystore>${install4j.safeNet.slot}</keystore>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sign-windows-ndl-quick</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<file>target/ndl-quick.exe</file>
+									<name>Nodal Core Tool</name>
+									<url>https://jadaptive.com</url>
+									<storetype>ETOKEN</storetype>
+									<storepass>${install4j.safeNet.pin}</storepass>
+									<keystore>${install4j.safeNet.slot}</keystore>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sign-windows-ndl-remote-node-agent</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<file>target/ndl-remote-node-agent.exe</file>
+									<name>Nodal Core Tool</name>
+									<url>https://jadaptive.com</url>
+									<storetype>ETOKEN</storetype>
+									<storepass>${install4j.safeNet.pin}</storepass>
+									<keystore>${install4j.safeNet.slot}</keystore>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+        
         <profile>
             <id>shaded</id>
             <build>
