@@ -270,7 +270,6 @@ pipeline {
 					steps {
                     
                         script {
-                            env.MAVEN_OPTIONS = '--add-exports jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED'
                             env.FULL_VERSION = getFullVersion()                            
                             echo "Full Version : ${env.FULLVERSION}"
                         }
@@ -284,6 +283,7 @@ pipeline {
 					 			)
 					 		]) {
 					 		withMaven(
+								mavenOpts: '--add-exports jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED',
 					 			globalMavenSettingsConfig: '14324b85-c597-44e8-a575-61f925dba528'
 					 		) {
 					 		  	bat 'mvn -U -P native-image clean package'

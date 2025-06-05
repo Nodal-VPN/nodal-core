@@ -154,8 +154,10 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 		var is = getNat(iface);
 		if(!Objects.equals(is.orElse(null), nat.orElse(null))) {
 
-			LOG.info("Removing existing MASQUERADE/SNAT rules for {}", iface);
 			var priv = context.commands().privileged();
+			var ipTablesPath = Optional.ofNullable(OsUtil.getPathOfCommandInPath("iptables")).map(Path::toString).orElse("/usr/sbin/iptables");
+
+			LOG.info("Removing existing MASQUERADE/SNAT rules for {} using {}", iface, ipTablesPath);
 			
 			try {
 				var local = getBestLocalNic().orElseThrow(() -> new IOException("Local NIC could not be determined."));
@@ -166,7 +168,7 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 						for(var to : snat.to()) {
 							for(var addr : NATMode.SNAT.toIpv4Addresses(to)) {
 								LOG.info("Removing SNAT rules for {} to {} using {}", iface, to.getName(), addr);
-								priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN,  
+								priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN,  
 										"-o", iface,
 										"-i", to.getName(),
 										"-j", SNAT, "--to-source", addr);
@@ -175,7 +177,7 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 
 						for(var addr : NATMode.SNAT.toIpv4Addresses(local)) {
 							LOG.info("Removing SNAT rules for {} to {} using {}", iface, local.getName(), addr);
-							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN,  
+							priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN,  
 									"-i", iface,
 									"-j", SNAT, "--to-source", addr);
 						}
@@ -184,16 +186,16 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 					else if(i instanceof MASQUERADE masq) {
 						if(masq.out().isEmpty()) {
 							LOG.info("Removing MASQ rules for {} to {}", iface, local.getName());
-							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", local.getName(), "-j", MASQUERADE, "-o", iface);
-							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE);
+							priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN, "-i", local.getName(), "-j", MASQUERADE, "-o", iface);
+							priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE);
 						}
 						else {
 							for(var in : masq.out()) {
 								LOG.info("Removing MASQ rules for {} to {}", in.getName(), iface);
-								priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", in.getName(), "-j", MASQUERADE, "-o", iface);
+								priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN, "-i", in.getName(), "-j", MASQUERADE, "-o", iface);
 							}
 							LOG.info("Removing MASQ rules for {}", iface);
-							priv.run("iptables", "-t", "nat", "-D", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE, "*");
+							priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE, "*");
 						}
 					}
 					else
@@ -210,7 +212,7 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 						for(var to : snat.to()) {
 							for(var addr : NATMode.SNAT.toIpv4Addresses(to)) {
 								LOG.info("Adding SNAT rules for {} to {} using {}", iface, to.getName(), addr);
-								priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN,  
+								priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN,  
 										"-o", iface,
 										"-i", to.getName(),
 										"-j", SNAT, "--to-source", addr);
@@ -219,7 +221,7 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 
 						for(var addr : NATMode.SNAT.toIpv4Addresses(local)) {
 							LOG.info("Adding SNAT rules for {} to {} using {}", iface, local.getName(), addr);
-							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN,  
+							priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN,  
 									"-i", iface,
 									"-j", SNAT, "--to-source", addr);
 						}
@@ -228,16 +230,16 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 					else if(n instanceof MASQUERADE masq) {
 						if(masq.out().isEmpty()) {
 							LOG.info("Adding MASQUERADE rules for {} to {}", iface, local.getName());
-							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", iface);
-							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", local.getName(), "-o", iface);
+							priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", iface);
+							priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN, "-j", MASQUERADE, "-i", local.getName(), "-o", iface);
 						}
 						else {
 							for(var in : masq.out()) {
 								LOG.info("Adding MASQUERADE rules for {} to {}", in.getName(), iface);
-								priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-i", in.getName(), "-j", MASQUERADE, "-o", iface);
+								priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN, "-i", in.getName(), "-j", MASQUERADE, "-o", iface);
 							}
 							LOG.info("Adding MASQUERADE rules for {}", iface);
-							priv.run("iptables", "-t", "nat", "-A", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE);
+							priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING_VPN, "-i", iface, "-j", MASQUERADE);
 						}
 					}
 					else
@@ -247,22 +249,22 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 			finally {
 				var haveSpecialTable = false;
 				var needSpecialTable = false;
-				for (@SuppressWarnings("unused") var l : priv.output("iptables", "-t", "nat", "-L", POSTROUTING, "-v", "-n").stream().skip(2).toList()) {
+				for (@SuppressWarnings("unused") var l : priv.output(ipTablesPath, "-t", "nat", "-L", POSTROUTING, "-v", "-n").stream().skip(2).toList()) {
 					haveSpecialTable = true;
 					break;
 				}
-				for (@SuppressWarnings("unused") var l : priv.output("iptables", "-t", "nat", "-L", POSTROUTING_VPN, "-v", "-n").stream().skip(2).toList()) {
+				for (@SuppressWarnings("unused") var l : priv.output(ipTablesPath, "-t", "nat", "-L", POSTROUTING_VPN, "-v", "-n").stream().skip(2).toList()) {
 					needSpecialTable = true;
 					break;
 				}
 				if(haveSpecialTable != needSpecialTable) {
 					if(needSpecialTable) {
 						LOG.info("Adding POSTROUTING -> POSTROUTING_VPN rule");
-						priv.run("iptables", "-t", "nat", "-A", POSTROUTING,  "-j", POSTROUTING_VPN);
+						priv.run(ipTablesPath, "-t", "nat", "-A", POSTROUTING,  "-j", POSTROUTING_VPN);
 					}
 					else {
 						LOG.info("Removing POSTROUTING -> POSTROUTING_VPN rule");
-						priv.run("iptables", "-t", "nat", "-D", POSTROUTING,  "-j", POSTROUTING_VPN);
+						priv.run(ipTablesPath, "-t", "nat", "-D", POSTROUTING,  "-j", POSTROUTING_VPN);
 					}
 				}
 			}
