@@ -270,7 +270,8 @@ pipeline {
 					steps {
                     
                         script {
-                            env.FULL_VERSION = getFullVersion()
+                            env.MAVEN_OPTIONS = '--add-exports jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED'
+                            env.FULL_VERSION = getFullVersion()                            
                             echo "Full Version : ${env.FULLVERSION}"
                         }
                         
