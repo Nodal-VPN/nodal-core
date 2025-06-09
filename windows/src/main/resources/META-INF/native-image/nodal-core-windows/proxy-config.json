@@ -11,7 +11,7 @@
 	},
 	{
 		"interfaces": [
-			"ccom.jadaptive.nodal.core.windows.WindowsSystemServices$XAdvapi32"
+			"com.jadaptive.nodal.core.windows.WindowsSystemServices$XAdvapi32"
 		]
 	},
 	{
