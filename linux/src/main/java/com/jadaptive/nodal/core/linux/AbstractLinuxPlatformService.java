@@ -21,6 +21,21 @@
  */
 package com.jadaptive.nodal.core.linux;
 
+import com.jadaptive.nodal.core.lib.AbstractUnixDesktopPlatformService;
+import com.jadaptive.nodal.core.lib.NATMode;
+import com.jadaptive.nodal.core.lib.NATMode.MASQUERADE;
+import com.jadaptive.nodal.core.lib.NATMode.SNAT;
+import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
+import com.jadaptive.nodal.core.lib.StartRequest;
+import com.jadaptive.nodal.core.lib.SystemContext;
+import com.jadaptive.nodal.core.lib.VpnAdapter;
+import com.jadaptive.nodal.core.lib.VpnConfiguration;
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.sshtools.liftlib.ElevatedClosure;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,21 +52,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jadaptive.nodal.core.lib.AbstractUnixDesktopPlatformService;
-import com.jadaptive.nodal.core.lib.NATMode;
-import com.jadaptive.nodal.core.lib.NATMode.MASQUERADE;
-import com.jadaptive.nodal.core.lib.NATMode.SNAT;
-import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
-import com.jadaptive.nodal.core.lib.StartRequest;
-import com.jadaptive.nodal.core.lib.SystemContext;
-import com.jadaptive.nodal.core.lib.VpnAdapter;
-import com.jadaptive.nodal.core.lib.VpnConfiguration;
-import com.jadaptive.nodal.core.lib.util.OsUtil;
-import com.sshtools.liftlib.ElevatedClosure;
 
 import uk.co.bithatch.nativeimage.annotations.Serialization;
 
@@ -444,6 +444,8 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
          * Wait for the first handshake. As soon as we have it, we are 'connected'. If
          * we don't get a handshake in that time, then consider this a failed
          * connection. We don't know WHY, just it has failed
+         * 
+         * Note, this only works if the client has a persistent keep-alive
          */
 		var peer = startRequest.peer();
         if (peer.isPresent() && context.configuration().connectTimeout().isPresent()) {

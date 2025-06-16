@@ -566,7 +566,7 @@ public class NdlQuick extends AbstractCommand implements SystemContext {
 
     }
 
-    @Command(name = "strip", description = "Output the stripped down configuration suitable for use with `lbv`.")
+    @Command(name = "strip", description = "Output the stripped down configuration suitable for use with `ndl`.")
     public final static class Strip extends AbstractOutputCommand {
 
         @Override
