@@ -208,7 +208,7 @@
                     <version>0.8.0</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <publishingServerId>central</publishingServerId>
+                        <publishingServerId>central-jadaptive</publishingServerId>
                          <autoPublish>true</autoPublish>
                          <waitUntil>published</waitUntil>
                     </configuration>
