@@ -72,21 +72,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <distributionManagement>
-    	<!-- TODO Doesnt yet work, may just need enabling in central UI -->
-        <!--<snapshotRepository>
-            <id>central-snapshots</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        </snapshotRepository>-->
-        <snapshotRepository>
-            <id>opensource-snapshots</id>
-            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>central</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
     <scm>
         <url>https://github.com/Nodal-VPN/nodal-core</url>
         <connection>scm:git:https://github.com/Nodal-VPN/nodal-core.git</connection>
@@ -165,13 +150,6 @@
 			<plugin>
 				<groupId>org.sonatype.central</groupId>
 				<artifactId>central-publishing-maven-plugin</artifactId>
-				<version>0.7.0</version>
-				<extensions>true</extensions>
-				<configuration>
-					<publishingServerId>central</publishingServerId>
-		             <autoPublish>true</autoPublish>
-		             <waitUntil>published</waitUntil>
-				</configuration>
 			</plugin>
         
         
@@ -223,6 +201,18 @@
         </plugins>
         <pluginManagement>
             <plugins>
+
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.8.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>central</publishingServerId>
+                         <autoPublish>true</autoPublish>
+                         <waitUntil>published</waitUntil>
+                    </configuration>
+                </plugin>
 				<plugin>
 					<groupId>net.jsign</groupId>
 					<artifactId>jsign-maven-plugin</artifactId>
@@ -346,17 +336,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.13</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh-sshtools</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.graalvm.buildtools</groupId>
                     <artifactId>native-maven-plugin</artifactId>
                     <version>${graalvm.version}</version>
@@ -389,8 +368,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

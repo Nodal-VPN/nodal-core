@@ -632,7 +632,12 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
 		context.addScriptEnvironmentVariables(session, env);
 		
 		var addr = session.address();
-        env.put("LBVPN_IP_MAC", addr.getMac());
+		try {
+		    env.put("LBVPN_IP_MAC", addr.getMac());
+		}
+		catch(Exception e) {
+            env.put("LBVPN_IP_MAC", "00:00:00:00:00:00");
+		}
         env.put("LBVPN_IP_NAME", addr.name());
         env.put("LBVPN_IP_NATIVE_NAME", addr.nativeName());
         env.put("LBVPN_IP_SHORT_NAME", addr.shortName());
