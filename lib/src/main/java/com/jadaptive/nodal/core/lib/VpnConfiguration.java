@@ -54,13 +54,18 @@ public interface VpnConfiguration extends VpnAdapterConfiguration {
             withAddresses(iface.getAllElse("Address"));
             withDns(iface.getAllElse("DNS"));
             withMtu(iface.getIntOr("MTU"));
-            withPreUp(iface.getAllElse("PreUp"));
-            withPreDown(iface.getAllElse("PreDown"));
-            withPostUp(iface.getAllElse("PostUp"));
-            withPostDown(iface.getAllElse("PostDown"));
+            withPreUp(parseMultiline(iface, "PreUp"));
+            withPreDown(parseMultiline(iface, "PreDown"));
+            withPostUp(parseMultiline(iface, "PostUp"));
+            withPostDown(parseMultiline(iface, "PostDown"));
             withSaveConfig(iface.getBoolean("SaveConfig", false));
             withTable(iface.getOr("Table"));
         }
+
+		private String[] parseMultiline(Section iface, String key) {
+			var val = String.join(System.lineSeparator(), iface.getAllElse(key));
+			return val.equals("") ? new String[0] : val.split("\r?\n");
+		}
 
         public Builder withTable(String table) {
             return withTable(Optional.of(table));
@@ -285,13 +290,13 @@ public interface VpnConfiguration extends VpnAdapterConfiguration {
         var ifaceSection = doc.section("Interface");
         ifaceSection.put("Address", addresses());
         if(preUp().length >0)
-        	ifaceSection.putAll("PreUp", preUp());
+        	ifaceSection.put("PreUp", String.join(System.lineSeparator(), preUp()));
         if(preUp().length >0)
-        	ifaceSection.putAll("PreUp", postUp());
+        	ifaceSection.put("PreUp", String.join(System.lineSeparator(), postUp()));
         if(preUp().length >0)
-        	ifaceSection.putAll("PreDown", preDown());
+        	ifaceSection.put("PreDown", String.join(System.lineSeparator(), preDown()));
         if(preUp().length >0)
-        	ifaceSection.putAll("PostDown", postDown());
+        	ifaceSection.put("PostDown", String.join(System.lineSeparator(), postDown()));
 
         if(!dns().isEmpty()) {
         	ifaceSection.putAll("DNS", dns().toArray(new String[0]));

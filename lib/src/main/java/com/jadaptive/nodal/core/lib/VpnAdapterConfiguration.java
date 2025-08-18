@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import com.jadaptive.nodal.core.lib.util.Keys;
 import com.jadaptive.nodal.core.lib.util.Util;
 import com.sshtools.jini.INI;
+import com.sshtools.jini.INI.EscapeMode;
 import com.sshtools.jini.INI.Section;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.DuplicateAction;
@@ -346,7 +347,9 @@ public interface VpnAdapterConfiguration extends Serializable {
                 withCommentCharacter('#').
                 withValueSeparatorWhitespace(false).
                 withIndent(0).
+                withEscapeMode(EscapeMode.ALWAYS).
                 withStringQuoteMode(StringQuoteMode.NEVER).
+                withoutMultilineStrings().
                 withMultiValueMode(MultiValueMode.SEPARATED).build();
     }
     
