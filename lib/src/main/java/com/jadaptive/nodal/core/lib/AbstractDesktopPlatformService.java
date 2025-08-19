@@ -638,6 +638,8 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
 		
 		session.addressOr().ifPresent(addr -> {
 		    try {
+		        if(addr.getMac() == null)
+		            throw new NullPointerException();
 	            env.put("LBVPN_IP_MAC", addr.getMac());
 	        }
 	        catch(Exception e) {
@@ -647,7 +649,7 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
 	        env.put("LBVPN_IP_NATIVE_NAME", addr.nativeName());
 	        env.put("LBVPN_IP_SHORT_NAME", addr.shortName());
 	        env.put("LBVPN_IP_DISPLAY_NAME", addr.displayName());
-	        env.put("LBVPN_IP_PEER", addr.peer());
+	        env.put("LBVPN_IP_PEER", addr.peer() == null ? "" : addr.peer());
 	        env.put("LBVPN_IP_TABLE", addr.table());    
 		});
 		
