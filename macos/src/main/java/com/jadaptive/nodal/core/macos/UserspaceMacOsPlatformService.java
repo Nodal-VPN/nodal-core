@@ -21,6 +21,16 @@
  */
 package com.jadaptive.nodal.core.macos;
 
+import com.jadaptive.nodal.core.lib.AbstractUnixDesktopPlatformService;
+import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.jadaptive.nodal.core.lib.StartRequest;
+import com.jadaptive.nodal.core.lib.SystemContext;
+import com.jadaptive.nodal.core.lib.VpnAdapter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
@@ -32,17 +42,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jadaptive.nodal.core.lib.AbstractUnixDesktopPlatformService;
-import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
-import com.jadaptive.nodal.core.lib.StartRequest;
-import com.jadaptive.nodal.core.lib.SystemContext;
-import com.jadaptive.nodal.core.lib.VpnAdapter;
-import com.jadaptive.nodal.core.lib.VpnConfiguration;
-import com.jadaptive.nodal.core.lib.util.OsUtil;
 
 public class UserspaceMacOsPlatformService extends AbstractUnixDesktopPlatformService<UserspaceMacOsAddress> {
 
@@ -60,6 +59,16 @@ public class UserspaceMacOsPlatformService extends AbstractUnixDesktopPlatformSe
 	public UserspaceMacOsPlatformService(SystemContext context) {
 		super(INTERFACE_PREFIX, context);
 	}
+
+    @Override
+    protected String[] getDefaultScriptInterpreterArgs() throws IOException {
+        try {
+            return new String[] { OsUtil.getPathOfCommandInPathOrFail("zsh").toString() };
+        }
+        catch(IOException ioe) {
+            return super.getDefaultScriptInterpreterArgs();
+        }
+    }
 
 	@Override
 	protected UserspaceMacOsAddress add(String name, String nativeName, String type) throws IOException {
@@ -239,16 +248,5 @@ public class UserspaceMacOsPlatformService extends AbstractUnixDesktopPlatformSe
 //		monitor_daemon
 //		execute_hooks "${POST_UP[@]}"
 
-	}
-
-	@Override
-	public void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
-		runHookViaPipeToShell(configuration, session, OsUtil.getPathOfCommandInPathOrFail("bash").toString(), "-c",
-				String.join(" ; ", hookScript).trim());
-	}
-
-	@Override
-	protected void runCommand(List<String> commands) throws IOException {
-		context().commands().privileged().logged().run(commands.toArray(new String[0]));
 	}
 }

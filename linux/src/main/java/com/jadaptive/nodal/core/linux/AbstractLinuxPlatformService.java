@@ -29,7 +29,6 @@ import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
 import com.jadaptive.nodal.core.lib.StartRequest;
 import com.jadaptive.nodal.core.lib.SystemContext;
 import com.jadaptive.nodal.core.lib.VpnAdapter;
-import com.jadaptive.nodal.core.lib.VpnConfiguration;
 import com.jadaptive.nodal.core.lib.util.OsUtil;
 import com.sshtools.liftlib.ElevatedClosure;
 
@@ -128,12 +127,6 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 	public boolean isValidNativeInterfaceName(String ifaceName) {
 		return ifaceName.length() < 16 && !ifaceName.matches(".*\\s+.*") && !ifaceName.contains(" ") && !ifaceName.contains("/");
 	}
-
-	@Override
-    public final void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
-        runHookViaPipeToShell(configuration, session, OsUtil.getPathOfCommandInPathOrFail("bash").toString(), "-c",
-                String.join(" ; ", hookScript).trim());
-    }
 
 	@Override
 	public void setNat(String iface, Optional<NATMode> nat) throws IOException {
@@ -477,11 +470,6 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
             throw ioe;
         }
 
-    }
-
-    @Override
-    protected final void runCommand(List<String> commands) throws IOException {
-        context(). commands().privileged().logged().run(commands.toArray(new String[0]));
     }
 
     private boolean isEnabled(Path path) {

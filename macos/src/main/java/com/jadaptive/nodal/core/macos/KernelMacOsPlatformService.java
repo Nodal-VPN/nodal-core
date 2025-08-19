@@ -62,11 +62,6 @@ public class KernelMacOsPlatformService extends AbstractUnixDesktopPlatformServi
 	}
 
     @Override
-    protected void runCommand(List<String> commands) throws IOException {
-        context().commands().privileged().logged().run(commands.toArray(new String[0]));
-    }
-
-    @Override
     public List<KernelMacOsAddress> addresses() {
         throw new UnsupportedOperationException("TODO");
     }

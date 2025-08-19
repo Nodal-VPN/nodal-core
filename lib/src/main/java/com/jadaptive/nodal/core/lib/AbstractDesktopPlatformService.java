@@ -21,6 +21,20 @@
  */
 package com.jadaptive.nodal.core.lib;
 
+import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
+import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
+import com.jadaptive.nodal.core.lib.Prefs.PrefType;
+import com.jadaptive.nodal.core.lib.ipmath.AbstractIp;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv4Range;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6;
+import com.jadaptive.nodal.core.lib.ipmath.Ipv6Range;
+import com.jadaptive.nodal.core.lib.util.IpUtil;
+import com.jadaptive.nodal.core.lib.util.Util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -44,20 +58,6 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jadaptive.nodal.core.lib.DNSProvider.DNSEntry;
-import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
-import com.jadaptive.nodal.core.lib.Prefs.PrefType;
-import com.jadaptive.nodal.core.lib.ipmath.AbstractIp;
-import com.jadaptive.nodal.core.lib.ipmath.Ipv4;
-import com.jadaptive.nodal.core.lib.ipmath.Ipv4Range;
-import com.jadaptive.nodal.core.lib.ipmath.Ipv6;
-import com.jadaptive.nodal.core.lib.ipmath.Ipv6Range;
-import com.jadaptive.nodal.core.lib.util.IpUtil;
-import com.jadaptive.nodal.core.lib.util.Util;
 
 public abstract class AbstractDesktopPlatformService<I extends VpnAddress> extends AbstractPlatformService<I> {
 
@@ -495,6 +495,11 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
         var gw = defaultGatewayPeer();
         transformBldr.fromConfiguration(configuration);
         transformBldr.withPeers();
+        transformBldr.withPreUp();
+        transformBldr.withPreDown();
+        transformBldr.withPostUp();
+        transformBldr.withPostDown();
+        
 		transformInterface(configuration, transformBldr);
 		for(var peer : configuration.peers()) {
             
@@ -631,19 +636,21 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
 		}
 		context.addScriptEnvironmentVariables(session, env);
 		
-		var addr = session.address();
-		try {
-		    env.put("LBVPN_IP_MAC", addr.getMac());
-		}
-		catch(Exception e) {
-            env.put("LBVPN_IP_MAC", "00:00:00:00:00:00");
-		}
-        env.put("LBVPN_IP_NAME", addr.name());
-        env.put("LBVPN_IP_NATIVE_NAME", addr.nativeName());
-        env.put("LBVPN_IP_SHORT_NAME", addr.shortName());
-        env.put("LBVPN_IP_DISPLAY_NAME", addr.displayName());
-        env.put("LBVPN_IP_PEER", addr.peer());
-        env.put("LBVPN_IP_TABLE", addr.table());
+		session.addressOr().ifPresent(addr -> {
+		    try {
+	            env.put("LBVPN_IP_MAC", addr.getMac());
+	        }
+	        catch(Exception e) {
+	            env.put("LBVPN_IP_MAC", "00:00:00:00:00:00");
+	        }
+	        env.put("LBVPN_IP_NAME", addr.name());
+	        env.put("LBVPN_IP_NATIVE_NAME", addr.nativeName());
+	        env.put("LBVPN_IP_SHORT_NAME", addr.shortName());
+	        env.put("LBVPN_IP_DISPLAY_NAME", addr.displayName());
+	        env.put("LBVPN_IP_PEER", addr.peer());
+	        env.put("LBVPN_IP_TABLE", addr.table());    
+		});
+		
 		if(LOG.isDebugEnabled()) {
 			LOG.debug("Environment:-");
 			for(Map.Entry<String, String> en : env.entrySet()) {
@@ -672,13 +679,22 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
 	}
 
 	@Override
-	public void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
-		for(String cmd : hookScript) {
-		    runCommand(Util.parseQuotedString(cmd));
-		}
+	public final void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
+        var largs = new ArrayList<>(Arrays.asList(getDefaultScriptInterpreterArgs()));
+	    var tf = Files.createTempFile("hscr", getDefaultScriptInterpreterSuffix());
+	    try {
+	        Files.writeString(tf, String.join(System.lineSeparator(), hookScript));
+	        largs.add(tf.toAbsolutePath().toString());
+	        runHookViaPipeToShell(configuration, session, largs.toArray(new String[0]));
+	    }
+	    finally {
+	        Files.delete(tf);
+	    }
 	}
 
-	protected abstract void runCommand(List<String> commands) throws IOException;
+    protected abstract String getDefaultScriptInterpreterSuffix();
+
+    protected abstract String[] getDefaultScriptInterpreterArgs() throws IOException;
 
 	// TODO I'd like to replace the use of preferences on all platforms to use files
 	// in a state directory (/var/run/wireguard) as the code below used to do in the mac impl.

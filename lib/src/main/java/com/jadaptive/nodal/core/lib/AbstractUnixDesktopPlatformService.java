@@ -132,6 +132,21 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 	}
 
     @Override
+    protected String getDefaultScriptInterpreterSuffix() {
+        return ".sh";
+    }
+
+    @Override
+    protected String[] getDefaultScriptInterpreterArgs() throws IOException {
+        try {
+            return new String[] { OsUtil.getPathOfCommandInPathOrFail("bash").toString() };
+        }
+        catch(IOException ioe) {
+            return new String[] { OsUtil.getPathOfCommandInPathOrFail("sh").toString() };
+        }
+    }
+
+    @Override
     protected final void transformInterface(VpnConfiguration configuration, VpnConfiguration.Builder writer) {
         /* DNS, Addresses handled separately */
         writer.withAddresses();

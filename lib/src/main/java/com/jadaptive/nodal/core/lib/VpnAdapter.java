@@ -116,6 +116,10 @@ public final class VpnAdapter implements Closeable {
         return service.information(this);
     }
 
+    public Optional<VpnAddress> addressOr() {
+        return ip;
+    }
+
     public VpnAddress address() {
         return ip.orElseThrow(() -> new IllegalStateException("No address."));
     }

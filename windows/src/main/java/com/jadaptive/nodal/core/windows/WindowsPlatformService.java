@@ -454,16 +454,15 @@ public class WindowsPlatformService extends AbstractDesktopPlatformService<Windo
 	}
 
 	@Override
-	public void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
-		runHookViaPipeToShell(configuration, session, OsUtil.getPathOfCommandInPathOrFail("cmd.exe").toString(), "/c",
-				String.join(" & ", hookScript).trim());
-	}
+    protected String getDefaultScriptInterpreterSuffix() {
+        return ".bat";
+    }
 
-	@Override
-	protected void runCommand(List<String> commands) throws IOException {
-	    context().commands().privileged().logged().run(commands.toArray(new String[0]));
-	}
-
+    @Override
+    protected String[] getDefaultScriptInterpreterArgs() throws IOException {
+        return new String[] { OsUtil.getPathOfCommandInPathOrFail("cmd.exe").toString(), "/c" };
+    }
+	
 	@Override
 	public VpnInterfaceInformation information(VpnAdapter vpnAdapter) {
 		try {
