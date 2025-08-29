@@ -291,11 +291,11 @@ public interface VpnConfiguration extends VpnAdapterConfiguration {
         ifaceSection.put("Address", addresses());
         if(preUp().length >0)
         	ifaceSection.put("PreUp", String.join(System.lineSeparator(), preUp()));
-        if(preUp().length >0)
-        	ifaceSection.put("PreUp", String.join(System.lineSeparator(), postUp()));
-        if(preUp().length >0)
+        if(postUp().length >0)
+        	ifaceSection.put("PostUp", String.join(System.lineSeparator(), postUp()));
+        if(preDown().length >0)
         	ifaceSection.put("PreDown", String.join(System.lineSeparator(), preDown()));
-        if(preUp().length >0)
+        if(postDown().length >0)
         	ifaceSection.put("PostDown", String.join(System.lineSeparator(), postDown()));
 
         if(!dns().isEmpty()) {
