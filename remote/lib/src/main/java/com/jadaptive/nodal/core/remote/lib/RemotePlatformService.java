@@ -43,7 +43,7 @@ public interface RemotePlatformService extends DBusInterface {
 
     String DBUS_INTERFACE_NAME = "com.jadaptive.nodal.core.RemotePlatformService";
     String OBJECT_PATH = "/" + DBUS_INTERFACE_NAME.replace('.', '/');
-    String BUS_NAME = "com.jadaptive.nodal.core.Remote";
+    String BUS_NAME = "com.jadaptive.nodal.agent.NodalAgent";
 
     /**
      * Get if any adapter exists with the logical name. See

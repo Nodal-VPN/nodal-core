@@ -33,7 +33,7 @@ For example,
 <dependency>
     <groupId>com.jadaptive</groupId>
     <artifactId>nodal-core-linux</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.2</version>
 </dependency>
     
 ```
