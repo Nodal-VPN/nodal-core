@@ -21,19 +21,6 @@
  */
 package com.jadaptive.nodal.core.remote.controller;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.exceptions.DBusExecutionException;
-
 import com.jadaptive.nodal.core.lib.BasePlatformService;
 import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.jadaptive.nodal.core.lib.NATMode;
@@ -52,7 +39,24 @@ import com.jadaptive.nodal.core.remote.lib.RemotePlatformService;
 import com.jadaptive.nodal.core.remote.lib.RemoteStartRequest;
 import com.jadaptive.nodal.core.remote.lib.RemoteVpnPeer;
 
+import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 public final class BusRemotePlatformService extends BasePlatformService<BusVpnAddress> {
+    
+    private final static Logger LOG = LoggerFactory.getLogger(BusRemotePlatformService.class);
 
     private final RemotePlatformService remote;
     private final SystemContext context;
@@ -116,7 +120,13 @@ public final class BusRemotePlatformService extends BasePlatformService<BusVpnAd
 
     @Override
     public void append(VpnAdapter vpnAdapter, VpnAdapterConfiguration cfg) throws IOException {
-        remote.append(vpnAdapter.address().nativeName(), cfg.write());
+        try {
+            remote.append(vpnAdapter.address().nativeName(), cfg.write());
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to append to network configuration.",  re);
+            throw re;
+        }
 
     }
 
@@ -148,11 +158,17 @@ public final class BusRemotePlatformService extends BasePlatformService<BusVpnAd
 
     @Override
     public void defaultGateway(Optional<Gateway> iface) {
-        iface.ifPresentOrElse(i -> {
-            remote.defaultGateway(new String[] { i.nativeIface(), i.address() });
-        }, () -> {
-            remote.defaultGateway(new String[0]);
-        });
+        try {
+            iface.ifPresentOrElse(i -> {
+                remote.defaultGateway(new String[] { i.nativeIface(), i.address() });
+            }, () -> {
+                remote.defaultGateway(new String[0]);
+            });
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to set default gateway.",  re);
+            throw re;
+        }
     }
 
     @Override
@@ -224,17 +240,35 @@ public final class BusRemotePlatformService extends BasePlatformService<BusVpnAd
 
     @Override
     public void reconfigure(VpnAdapter vpnAdapter, VpnAdapterConfiguration cfg) throws IOException {
-        remote.reconfigure(vpnAdapter.address().nativeName(), cfg.write());
+        try {
+            remote.reconfigure(vpnAdapter.address().nativeName(), cfg.write());
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to reconfigure.",  re);
+            throw re;
+        }
     }
 
     @Override
     public void remove(VpnAdapter vpnAdapter, String publicKey) throws IOException {
-        remote.remove(vpnAdapter.address().nativeName(), publicKey);
+        try {
+            remote.remove(vpnAdapter.address().nativeName(), publicKey);
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to remove adapter.",  re);
+            throw re;
+        }
     }
 
     @Override
     public void resetDefaultGatewayPeer() throws IOException {
-        remote.resetDefaultGatewayPeer();
+        try {
+            remote.resetDefaultGatewayPeer();
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to reset default gateway peer.",  re);
+            throw re;
+        }
     }
 
     @Override
@@ -244,27 +278,57 @@ public final class BusRemotePlatformService extends BasePlatformService<BusVpnAd
 
     @Override
     public void runHook(VpnConfiguration configuration, VpnAdapter session, String... hookScript) throws IOException {
-        remote.runHook(configuration.write(), session.address().nativeName(), hookScript);
+        try {
+            remote.runHook(configuration.write(), session.address().nativeName(), hookScript);
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to run hook.",  re);
+            throw re;
+        }
     }
 
     @Override
     public void setIpForwardingEnabledOnSystem(boolean ipForwarding) {
-        remote.setIpForwardingEnabledOnSystem(ipForwarding);
+        try {
+            remote.setIpForwardingEnabledOnSystem(ipForwarding);
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to set IP forwarding.",  re);
+            throw re;
+        }
     }
 
     @Override
     public void setNat(String iface, Optional<NATMode> nat) throws IOException {
-        remote.setNat(iface, new RemoteNATMode(nat));
+        try {
+            remote.setNat(iface, new RemoteNATMode(nat));
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to set NAT mode.",  re);
+            throw re;
+        }
     }
 
     @Override
     public VpnAdapter start(StartRequest startRequest) throws IOException {
-       return adapter(remote.start(new RemoteStartRequest(startRequest)));
+        try {
+            return adapter(remote.start(new RemoteStartRequest(startRequest)));
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to start network.",  re);
+            throw re;
+        }
     }
 
     @Override
     public void sync(VpnAdapter vpnAdapter, VpnAdapterConfiguration cfg) throws IOException {
-        remote.sync(vpnAdapter.address().nativeName(), cfg.write());
+        try {
+            remote.sync(vpnAdapter.address().nativeName(), cfg.write());
+        }
+        catch(RuntimeException re) {
+            LOG.error("Failed to sync configuration.",  re);
+            throw re;
+        }
     }
 
 	@Override

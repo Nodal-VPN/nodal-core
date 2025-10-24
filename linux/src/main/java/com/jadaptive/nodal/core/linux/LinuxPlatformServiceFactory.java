@@ -40,7 +40,7 @@ import com.sshtools.liftlib.OS;
 
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Resource({ "linux-x84-64/.*" })
+@Resource({ "linux-x84-64/.*", "linux-aarch64/.*" })
 public class LinuxPlatformServiceFactory implements PlatformServiceFactory {
     final static Logger LOG = LoggerFactory.getLogger(LinuxPlatformServiceFactory.class);
 
