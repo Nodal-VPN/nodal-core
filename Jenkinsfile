@@ -13,7 +13,7 @@ pipeline {
                  */
                 stage ('Cross-platform Nodal Core Libraries') {
                     agent {
-                        label 'posix'
+                        label 'linux'
                     }
                     steps {
                         configFileProvider([
