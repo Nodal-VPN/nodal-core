@@ -1,0 +1,13 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\Qmacos-aarch64/wg\\E"
+  }, {
+    "pattern":"\\Qmacos-aarch64/wireguard-go\\E"
+  }, {
+    "pattern":"\\Qmacos-x86-64/wg\\E"
+  }, {
+    "pattern":"\\Qmacos-x86-64/wireguard-go\\E"
+  }]},
+  "bundles":[]
+}

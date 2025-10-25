@@ -1,0 +1,13 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\Qlinux-aarch64/wg\\E"
+  }, {
+    "pattern":"\\Qlinux-aarch64/wireguard-go\\E"
+  }, {
+    "pattern":"\\Qlinux-x86-64/wg\\E"
+  }, {
+    "pattern":"\\Qlinux-x86-64/wireguard-go\\E"
+  }]},
+  "bundles":[]
+}

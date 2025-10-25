@@ -240,7 +240,9 @@ public class NativeComponents {
         if (res == null)
             throw new UnsupportedOperationException(
                     MessageFormat.format("The tool {0} is not supported on {1} {2}", tool, os, arch));
+		LOG.info("Found tool at {}", res);
 		var toolPath = extractFile(os, arch, tool, toolFilename, res, true);
+		LOG.info("Extracted to {}", toolPath);
 
 		for (var dep : tool.dependencies()) {
 			LOG.info("Extracting tool dependency {} for platform {} on arch {} from {}", dep, os.name(), arch.name(),
