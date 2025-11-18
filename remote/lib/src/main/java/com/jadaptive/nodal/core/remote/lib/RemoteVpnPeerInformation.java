@@ -90,7 +90,6 @@ public class RemoteVpnPeerInformation extends Struct {
         this.error = error;
     }
 
-    @SuppressWarnings("serial")
     public VpnPeerInformation toNative() {
         return new VpnPeerInformation() {
             

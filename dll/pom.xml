@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>com.jadaptive</groupId>
 		<artifactId>nodal-core</artifactId>
-    	<version>0.9.3-SNAPSHOT</version>
+    	<version>1.0.0</version>
     	<relativePath>../</relativePath>
 	</parent>
 	<artifactId>nodal-core-dll</artifactId>

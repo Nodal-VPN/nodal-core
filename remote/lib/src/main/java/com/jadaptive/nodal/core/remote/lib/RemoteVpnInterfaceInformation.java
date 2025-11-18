@@ -138,7 +138,6 @@ public class RemoteVpnInterfaceInformation extends Struct {
         return error;
     }
 
-    @SuppressWarnings("serial")
     public VpnInterfaceInformation toNative() {
         return new VpnInterfaceInformation() {
 

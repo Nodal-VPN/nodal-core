@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jadaptive</groupId>
     <artifactId>nodal-core</artifactId>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>Nodal Core</name>
     
@@ -35,7 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <native.image.annotations.version>0.9.3</native.image.annotations.version>
-        <dbus.version>5.0.0</dbus.version>
+        <dbus.version>5.1.0</dbus.version>
         <graalvm.version>0.9.28</graalvm.version>
 		<build.projectProperties>${basedir}/jadaptive.build.properties</build.projectProperties>
 		<build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>

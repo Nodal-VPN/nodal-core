@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.jadaptive</groupId>
         <artifactId>nodal-core-remote</artifactId>
-    	<version>0.9.3-SNAPSHOT</version>
+    	<version>1.0.0</version>
         <relativePath>../</relativePath>
     </parent>
     <artifactId>nodal-core-remote-node</artifactId>
@@ -51,11 +51,7 @@
                 </dependency>
                 <dependency>
                     <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-transport-tcp</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-transport-native-unixsocket</artifactId>
+                    <artifactId>dbus-java-core</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>org.slf4j</groupId>
