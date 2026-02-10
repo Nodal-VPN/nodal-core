@@ -286,7 +286,7 @@ pipeline {
 								mavenOpts: '--add-exports jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED',
 					 			globalMavenSettingsConfig: '14324b85-c597-44e8-a575-61f925dba528'
 					 		) {
-					 		  	bat 'mvn -U -P native-image clean package -Dbuild.projectProperties=%BUILD_PROPERTIES%'
+					 		  	bat 'mvn -U -P native-image clean package -Dbuild.projectProperties="%BUILD_PROPERTIES%"'
 					 		}
         				}
                         
