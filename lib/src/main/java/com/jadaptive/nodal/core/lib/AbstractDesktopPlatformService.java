@@ -213,7 +213,7 @@ public abstract class AbstractDesktopPlatformService<I extends VpnAddress> exten
         	var allSrvs = ServiceLoader.load(DNSProvider.Factory.class, getClass().getClassLoader());
         	var preferredFailed = false;
         	
-        	if(dnsOr.isPresent()) {
+        	if(dnsOr.isPresent() && !dnsOr.get().equals("")) {
         		var dns = dnsOr.get();
         		for(var provFactory : allSrvs.stream().collect(Collectors.toList())) {
     				var provs = provFactory.get().available();

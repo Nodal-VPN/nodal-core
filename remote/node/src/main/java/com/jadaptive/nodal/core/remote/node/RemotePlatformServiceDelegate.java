@@ -79,10 +79,16 @@ public class RemotePlatformServiceDelegate implements RemotePlatformService, Clo
         this.addressFilter = addressFilter;
 
         connection.exportObject(this);
-        if(delegate.dns().isPresent())
-            connection.exportObject(rdns = new RemoteDNSProviderDelegate(delegate.dns().get()));
-        else
-        	rdns = null;
+        try {
+	        if(delegate.dns().isPresent())
+	            connection.exportObject(rdns = new RemoteDNSProviderDelegate(delegate.dns().get()));
+	        else
+	        	rdns = null;
+        }
+        catch(RuntimeException | DBusException dbe) {
+			connection.unExportObject(this.getObjectPath());
+			throw dbe;
+		}
         
         updateAddresses();
         
