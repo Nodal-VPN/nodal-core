@@ -137,4 +137,11 @@ public class IpUtil {
 			return a.toString() + "/" + a.bitSize();
 		}
 	}
+
+	public static String removeInterfaceIfPresent(String ip) {
+		if (ip.contains("%")) {
+			return ip.substring(0, ip.indexOf('%'));
+		} else
+			return ip;
+	}
 }

@@ -446,7 +446,7 @@ public interface PlatformService<ADDR extends VpnAddress> {
 
 		@Override
 		public String getAddress() {
-			return address.getAddress().getHostAddress();
+			return IpUtil.removeInterfaceIfPresent(address.getAddress().getHostAddress());
 		}
 
 		@Override
