@@ -311,6 +311,92 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
         return false;
     }
 
+    /**
+     * Sets up a default route (i.e. a {@code /0} catch-all route) for this WireGuard interface,
+     * along with the necessary policy routing rules and firewall configuration to ensure
+     * traffic is correctly routed through the tunnel without loops.
+     *
+     * <p>This method is called by {@link #addRoute(String)} when the route ends with {@code /0}
+     * and the routing table is set to {@link #TABLE_AUTO}. It is modelled on the behaviour of
+     * the {@code wg-quick} tool's default route setup.</p>
+     *
+     * <h3>Step 1 &ndash; Determine or allocate an fwmark / routing table number</h3>
+     * <ul>
+     *   <li>Runs {@code wg show <interface> fwmark} to retrieve the current firewall mark.</li>
+     *   <li>If no fwmark is set (returns 0), allocates one starting at {@code 51820} by probing
+     *       {@code ip -4 route show table <n>} and {@code ip -6 route show table <n>} until an
+     *       unused table number is found.</li>
+     *   <li>Assigns the chosen fwmark to the WireGuard interface via
+     *       {@code wg set <interface> fwmark <table>}.</li>
+     * </ul>
+     *
+     * <h3>Step 2 &ndash; Detect IPv4 vs IPv6</h3>
+     * <ul>
+     *   <li>If the {@code route} contains a colon ({@code :}), it is treated as IPv6
+     *       ({@code proto = "-6"}, {@code iptables = "ip6tables"}, {@code pf = "ip6"}).</li>
+     *   <li>Otherwise it is treated as IPv4
+     *       ({@code proto = "-4"}, {@code iptables = "iptables"}, {@code pf = "ip"}).</li>
+     * </ul>
+     *
+     * <h3>Step 3 &ndash; Add the route and policy routing rules</h3>
+     * <ol>
+     *   <li>{@code ip <proto> route add <route> dev <interface> table <table>}
+     *       &mdash; adds the default route into the dedicated routing table.</li>
+     *   <li>{@code ip <proto> rule add not fwmark <table> table <table>}
+     *       &mdash; directs all packets that do <em>not</em> already carry the fwmark into
+     *       the dedicated table (this prevents WireGuard's own encrypted UDP packets from
+     *       being re-routed back into the tunnel).</li>
+     *   <li>{@code ip <proto> rule add table main suppress_prefixlength 0}
+     *       &mdash; allows more-specific routes in the {@code main} table to take precedence
+     *       over the tunnel's catch-all, while still suppressing the main table's own
+     *       default route.</li>
+     * </ol>
+     *
+     * <h3>Step 4 &ndash; Build firewall rules to prevent spoofed traffic</h3>
+     * <p>Two parallel sets of rules are constructed: one for <strong>nftables</strong> and one
+     * for <strong>iptables-restore</strong>. Only one set is applied (see Step 6).</p>
+     * <p>For each IP address assigned to this interface (discovered via
+     * {@code ip -o <proto> addr show dev <interface>}):</p>
+     * <ul>
+     *   <li><strong>iptables (raw/PREROUTING):</strong>
+     *       {@code -I PREROUTING ! -i <interface> -d <addr> -m addrtype ! --src-type LOCAL -j DROP}
+     *       &mdash; drops inbound packets destined for the interface's address that arrive
+     *       on a <em>different</em> interface and are not from a local source.</li>
+     *   <li><strong>nftables (preraw chain, priority -300):</strong> equivalent
+     *       {@code iifname != "<interface>" <pf> daddr <addr> fib saddr type != local drop} rule.</li>
+     * </ul>
+     * <p>Additionally, connection-tracking mark rules are added to preserve the fwmark across
+     * UDP packets (important for WireGuard's encrypted transport):</p>
+     * <ul>
+     *   <li><strong>iptables (mangle):</strong>
+     *       {@code -I POSTROUTING -m mark --mark <table> -p udp -j CONNMARK --save-mark} and
+     *       {@code -I PREROUTING -p udp -j CONNMARK --restore-mark}.</li>
+     *   <li><strong>nftables (postmangle / premangle chains, priority -150):</strong> equivalent
+     *       {@code meta l4proto udp mark <table> ct mark set mark} and
+     *       {@code meta l4proto udp meta mark set ct mark} rules.</li>
+     * </ul>
+     * <p>All iptables rules are tagged with a comment
+     * {@code "Nodal rule for <interface>"} so they can be identified and removed later by
+     * {@code removeFirewall()}.</p>
+     *
+     * <h3>Step 5 &ndash; Enable source-valid-mark (IPv4 only)</h3>
+     * <p>If the route is IPv4, runs
+     * {@code sysctl -q net.ipv4.conf.all.src_valid_mark=1} to allow packets with an fwmark
+     * to pass reverse-path filtering.</p>
+     *
+     * <h3>Step 6 &ndash; Apply firewall rules</h3>
+     * <ul>
+     *   <li>If {@code nft} is available on the system, the nftables ruleset is written to a
+     *       temporary file and loaded via {@code nft -f <tempfile>}. The temporary file is
+     *       deleted afterwards.</li>
+     *   <li>Otherwise, the iptables-restore script is piped into
+     *       {@code iptables-restore -n} (or {@code ip6tables-restore -n} for IPv6). The
+     *       {@code -n} flag ensures existing rules are not flushed.</li>
+     * </ul>
+     *
+     * @param route the default route to add (e.g. {@code "0.0.0.0/0"} or {@code "::/0"})
+     * @throws IOException if any of the underlying system commands fail
+     */
     private void addDefault(String route) throws IOException {
         var table = getFWMark("table");
         var priv = commands.privileged();

@@ -84,7 +84,7 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
                 if (!r.startsWith(" ")) {
                     String[] a = r.split(":");
                     String name = a[1].trim();
-                    l.add(lastLink = createAddress(nativeNameToInterfaceName(name).orElse(name), name));
+                    l.add(lastLink = new KernelLinuxAddress(nativeNameToInterfaceName(name).orElse(name), name, this));
                     state = IpAddressState.MAC;
                 } else if (lastLink != null) {
                     r = r.trim();
