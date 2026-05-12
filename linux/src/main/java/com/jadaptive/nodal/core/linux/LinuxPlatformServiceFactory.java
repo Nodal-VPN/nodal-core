@@ -52,9 +52,9 @@ public class LinuxPlatformServiceFactory implements PlatformServiceFactory {
     @Override
     public PlatformService<? extends VpnAddress> createPlatformService(SystemContext context) {
         PlatformService<? extends VpnAddress> ps = null;
-        if (Boolean.getBoolean("nodal.forceUserspace")) {
+        if (Boolean.getBoolean("nodal.forceUserspace") || System.getenv("VPN_USERSPACE_DRIVER") != null) {
             LOG.warn("Forcing use of userspace implementation through system property.");
-        } else if (Boolean.getBoolean("nodal.forceKernel")) {
+        } else if (Boolean.getBoolean("nodal.forceKernel") || System.getenv("VPN_KERNEL_DRIVER") != null) {
             LOG.warn("Forcing use of kernel implementation through system property.");
             ps = new KernelLinuxPlatformService(context);
         } else {
