@@ -29,6 +29,7 @@ import com.jadaptive.nodal.core.lib.NativeComponents.Tool;
 import com.jadaptive.nodal.core.lib.StartRequest;
 import com.jadaptive.nodal.core.lib.SystemContext;
 import com.jadaptive.nodal.core.lib.VpnAdapter;
+import com.jadaptive.nodal.core.lib.VpnAdapterConfiguration;
 import com.jadaptive.nodal.core.lib.util.OsUtil;
 import com.sshtools.liftlib.ElevatedClosure;
 
@@ -45,6 +46,7 @@ import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +72,62 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 
     static Object lock = new Object();
 
+    private WireGuardNetlink netlink;
+    private volatile Boolean netlinkAvailable;
+
     public AbstractLinuxPlatformService(SystemContext context) {
         super(INTERFACE_PREFIX, context);
+    }
+
+    /**
+     * Get the WireGuard Netlink client, creating it lazily.
+     *
+     * @return the Netlink client
+     */
+    public WireGuardNetlink netlink() {
+        if (netlink == null) {
+            netlink = new WireGuardNetlink();
+        }
+        return netlink;
+    }
+
+    /**
+     * Check if WireGuard Generic Netlink is available (kernel module loaded).
+     *
+     * @return true if Netlink is available
+     */
+    public boolean isNetlinkAvailable() {
+        if (netlinkAvailable == null) {
+            synchronized (this) {
+                if (netlinkAvailable == null) {
+                    netlinkAvailable = netlink().isAvailable();
+                    if (netlinkAvailable) {
+                        LOG.info("WireGuard Generic Netlink is available, will use for kernel interfaces");
+                    }
+                }
+            }
+        }
+        return netlinkAvailable;
+    }
+
+    /**
+     * Check if we can communicate with the given interface without forking wg.
+     * Returns true if either a UAPI socket exists (wireguard-go) or Netlink
+     * is available (kernel module).
+     */
+    public boolean hasDirectAccess(String nativeInterfaceName) {
+        return hasUAPISocket(nativeInterfaceName) || isNetlinkAvailable();
+    }
+
+    /**
+     * Get device state via Netlink.
+     *
+     * @param nativeInterfaceName the native interface name
+     * @return device state
+     * @throws IOException on error
+     */
+    public com.jadaptive.nodal.core.lib.WireGuardUAPI.DeviceState getDeviceViaNetlink(String nativeInterfaceName) throws IOException {
+        return netlink().getDevice(nativeInterfaceName);
     }
 
 	@Override
@@ -399,26 +455,51 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
         if (configuration.addresses().size() > 0)
             ip.setAddresses(configuration.addresses().get(0));
 
-        Path tempFile = Files.createTempFile("wg", ".cfg");
-        try {
-            try (Writer writer = Files.newBufferedWriter(tempFile)) {
-                transform(configuration).write(writer);
+        var transformedConfig = transform(configuration);
+        if (hasUAPISocket(ip.nativeName())) {
+            LOG.info("Activating Wireguard configuration for {} via UAPI socket", ip.shortName());
+            try {
+                var adapterConfig = new VpnAdapterConfiguration.Builder()
+                        .fromFileContent(transformedConfig.write())
+                        .build();
+                uapi().setConfiguration(ip.nativeName(), adapterConfig);
+            } catch (ParseException e) {
+                throw new IOException("Failed to parse transformed configuration", e);
             }
-            
-            // TEMP
-            try(BufferedReader reader =  Files.newBufferedReader(tempFile)) {
-            	String line;
-            	while( ( line = reader.readLine()) != null) {
-            		LOG.info("{}", line);
-            	}
-            }
-            
-            LOG.info("Activating Wireguard configuration for {} (in {})", ip.shortName(), tempFile);
-            context().commands().privileged().logged().result(context().nativeComponents().tool(Tool.WG), "setconf", ip.name(),
-                    tempFile.toString());
             LOG.info("Activated Wireguard configuration for {}", ip.shortName());
-        } finally {
-            Files.delete(tempFile);
+        } else if (isNetlinkAvailable()) {
+            LOG.info("Activating Wireguard configuration for {} via Netlink", ip.shortName());
+            try {
+                var adapterConfig = new VpnAdapterConfiguration.Builder()
+                        .fromFileContent(transformedConfig.write())
+                        .build();
+                netlink().setConfiguration(ip.nativeName(), adapterConfig);
+            } catch (ParseException e) {
+                throw new IOException("Failed to parse transformed configuration", e);
+            }
+            LOG.info("Activated Wireguard configuration for {}", ip.shortName());
+        } else {
+            Path tempFile = Files.createTempFile("wg", ".cfg");
+            try {
+                try (Writer writer = Files.newBufferedWriter(tempFile)) {
+                    transformedConfig.write(writer);
+                }
+                
+                // TEMP
+                try(BufferedReader reader =  Files.newBufferedReader(tempFile)) {
+                	String line;
+                	while( ( line = reader.readLine()) != null) {
+                		LOG.info("{}", line);
+                	}
+                }
+                
+                LOG.info("Activating Wireguard configuration for {} (in {})", ip.shortName(), tempFile);
+                context().commands().privileged().logged().result(context().nativeComponents().tool(Tool.WG), "setconf", ip.name(),
+                        tempFile.toString());
+                LOG.info("Activated Wireguard configuration for {}", ip.shortName());
+            } finally {
+                Files.delete(tempFile);
+            }
         }
 
         /*
@@ -506,5 +587,224 @@ public abstract class AbstractLinuxPlatformService extends AbstractUnixDesktopPl
 			return null;
 		}
     	
+    }
+
+    // --- Netlink-aware overrides ---
+    // These override the parent's UAPI-or-CLI methods to add a Netlink
+    // path for kernel WireGuard interfaces (which have no UAPI socket).
+
+    @Override
+    public void reconfigure(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
+        var nativeName = adapter.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            uapi().setConfiguration(nativeName, configuration);
+        } else if (isNetlinkAvailable()) {
+            LOG.debug("Using Netlink for setconf on {}", nativeName);
+            netlink().setConfiguration(nativeName, configuration);
+        } else {
+            super.reconfigure(adapter, configuration);
+            return; // super already calls addRoutes
+        }
+        addRoutes(adapter);
+    }
+
+    @Override
+    public void sync(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
+        var nativeName = adapter.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            uapi().syncConfiguration(nativeName, configuration);
+        } else if (isNetlinkAvailable()) {
+            LOG.debug("Using Netlink for syncconf on {}", nativeName);
+            netlink().syncConfiguration(nativeName, configuration);
+        } else {
+            super.sync(adapter, configuration);
+            return;
+        }
+        addRoutes(adapter);
+    }
+
+    @Override
+    public void append(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
+        var nativeName = adapter.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            uapi().appendConfiguration(nativeName, configuration);
+        } else if (isNetlinkAvailable()) {
+            LOG.debug("Using Netlink for addconf on {}", nativeName);
+            netlink().appendConfiguration(nativeName, configuration);
+        } else {
+            super.append(adapter, configuration);
+            return;
+        }
+        addRoutes(adapter);
+    }
+
+    @Override
+    public void remove(VpnAdapter adapter, String publicKey) throws IOException {
+        var nativeName = adapter.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            uapi().removePeer(nativeName, publicKey);
+        } else if (isNetlinkAvailable()) {
+            LOG.debug("Using Netlink to remove peer on {}", nativeName);
+            netlink().removePeer(nativeName, publicKey);
+        } else {
+            super.remove(adapter, publicKey);
+        }
+    }
+
+    @Override
+    public Instant getLatestHandshake(com.jadaptive.nodal.core.lib.VpnAddress iface, String publicKey) throws IOException {
+        if (hasUAPISocket(iface.nativeName())) {
+            return super.getLatestHandshake(iface, publicKey);
+        }
+        if (isNetlinkAvailable()) {
+            var device = netlink().getDevice(iface.nativeName());
+            for (var peer : device.peers()) {
+                if (peer.publicKey().equals(publicKey)) {
+                    return peer.lastHandshake();
+                }
+            }
+            return Instant.ofEpochSecond(0);
+        }
+        return super.getLatestHandshake(iface, publicKey);
+    }
+
+    @Override
+    protected Optional<String> getPublicKey(String interfaceName) throws IOException {
+        if (hasUAPISocket(interfaceName)) {
+            return super.getPublicKey(interfaceName);
+        }
+        if (isNetlinkAvailable()) {
+            try {
+                var device = netlink().getDevice(interfaceName);
+                var pk = device.publicKey();
+                if (pk == null || pk.isEmpty()) {
+                    return Optional.empty();
+                }
+                return Optional.of(pk);
+            } catch (IOException e) {
+                LOG.debug("Netlink error for getPublicKey on {}, falling back to wg CLI", interfaceName, e);
+            }
+        }
+        return super.getPublicKey(interfaceName);
+    }
+
+    @Override
+    public com.jadaptive.nodal.core.lib.VpnInterfaceInformation information(VpnAdapter adapter) {
+        var iface = adapter.address();
+        if (hasUAPISocket(iface.nativeName())) {
+            return super.information(adapter);
+        }
+        if (isNetlinkAvailable()) {
+            try {
+                var device = netlink().getDevice(iface.nativeName());
+                var peers = new java.util.ArrayList<com.jadaptive.nodal.core.lib.VpnPeerInformation>();
+                var totalRx = 0L;
+                var totalTx = 0L;
+                var maxHandshake = 0L;
+
+                for (var peerState : device.peers()) {
+                    var thisRx = peerState.rxBytes();
+                    var thisTx = peerState.txBytes();
+                    var thisHandshake = peerState.lastHandshake();
+                    totalRx += thisRx;
+                    totalTx += thisTx;
+                    maxHandshake = Math.max(maxHandshake, thisHandshake.toEpochMilli());
+
+                    peers.add(new com.jadaptive.nodal.core.lib.VpnPeerInformation() {
+                        @Override public long tx() { return thisTx; }
+                        @Override public long rx() { return thisRx; }
+                        @Override public Instant lastHandshake() { return thisHandshake; }
+                        @Override public Optional<String> error() { return Optional.empty(); }
+                        @Override public Optional<java.net.InetSocketAddress> remoteAddress() { return peerState.remoteAddress(); }
+                        @Override public java.util.List<String> allowedIps() { return peerState.allowedIps(); }
+                        @Override public String publicKey() { return peerState.publicKey(); }
+                        @Override public Optional<String> presharedKey() { return peerState.presharedKey(); }
+                    });
+                }
+
+                var ifaceName = iface.name();
+                var finalRx = totalRx;
+                var finalTx = totalTx;
+                var finalHandshake = maxHandshake;
+
+                return new com.jadaptive.nodal.core.lib.VpnInterfaceInformation() {
+                    @Override public String interfaceName() { return ifaceName; }
+                    @Override public long tx() { return finalTx; }
+                    @Override public long rx() { return finalRx; }
+                    @Override public java.util.List<com.jadaptive.nodal.core.lib.VpnPeerInformation> peers() { return peers; }
+                    @Override public Instant lastHandshake() { return Instant.ofEpochMilli(finalHandshake); }
+                    @Override public Optional<String> error() { return Optional.empty(); }
+                    @Override public Optional<Integer> listenPort() { return device.listenPort() == 0 ? Optional.empty() : Optional.of(device.listenPort()); }
+                    @Override public Optional<Integer> fwmark() { return device.fwmark() == 0 ? Optional.empty() : Optional.of(device.fwmark()); }
+                    @Override public String publicKey() { return device.publicKey(); }
+                    @Override public String privateKey() { return device.privateKey(); }
+                };
+            } catch (IOException e) {
+                LOG.debug("Netlink error for information on {}, falling back to wg CLI", iface.nativeName(), e);
+            }
+        }
+        return super.information(adapter);
+    }
+
+    @Override
+    public VpnAdapterConfiguration configuration(VpnAdapter adapter) {
+        var nativeName = adapter.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            return super.configuration(adapter);
+        }
+        if (isNetlinkAvailable()) {
+            try {
+                var device = netlink().getDevice(nativeName);
+                var builder = new VpnAdapterConfiguration.Builder();
+                if (!device.privateKey().isEmpty()) {
+                    builder.withPrivateKey(device.privateKey());
+                }
+                if (device.listenPort() > 0) {
+                    builder.withListenPort(device.listenPort());
+                }
+                if (device.fwmark() > 0) {
+                    builder.withFwMark(device.fwmark());
+                }
+                for (var peerState : device.peers()) {
+                    var peerBuilder = new com.jadaptive.nodal.core.lib.VpnPeer.Builder()
+                            .withPublicKey(peerState.publicKey())
+                            .withAllowedIps(peerState.allowedIps());
+                    peerState.presharedKey().ifPresent(peerBuilder::withPresharedKey);
+                    peerState.remoteAddress().ifPresent(addr ->
+                            peerBuilder.withEndpoint(addr.getHostString() + ":" + addr.getPort()));
+                    if (peerState.persistentKeepalive() > 0) {
+                        peerBuilder.withPersistentKeepalive(peerState.persistentKeepalive());
+                    }
+                    builder.addPeers(peerBuilder.build());
+                }
+                return builder.build();
+            } catch (IOException e) {
+                LOG.debug("Netlink error for configuration on {}, falling back to wg CLI", nativeName, e);
+            }
+        }
+        return super.configuration(adapter);
+    }
+
+    @Override
+    protected java.util.Collection<String> getAllowedIps(VpnAdapter session) throws IOException {
+        var nativeName = session.address().nativeName();
+        if (hasUAPISocket(nativeName)) {
+            return super.getAllowedIps(session);
+        }
+        if (isNetlinkAvailable()) {
+            var device = netlink().getDevice(nativeName);
+            var result = new java.util.ArrayList<String>();
+            for (var peer : device.peers()) {
+                if (!peer.allowedIps().isEmpty()) {
+                    var sb = new StringBuilder(peer.publicKey());
+                    for (var ip : peer.allowedIps()) {
+                        sb.append('\t').append(ip);
+                    }
+                    result.add(sb.toString());
+                }
+            }
+            return result;
+        }
+        return super.getAllowedIps(session);
     }
 }

@@ -43,6 +43,11 @@
 			<groupId>com.github.hypfvieh</groupId>
 			<artifactId>dbus-java-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-jpms</artifactId>
+			<version>5.17.0</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

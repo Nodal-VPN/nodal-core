@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +48,41 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 		extends AbstractDesktopPlatformService<I> {
 	private final static Logger LOG = LoggerFactory.getLogger(AbstractUnixDesktopPlatformService.class);
 
+	private WireGuardUAPI uapi;
+
 	public AbstractUnixDesktopPlatformService(String interfacePrefix, SystemContext context) {
 		super(interfacePrefix, context);
+	}
+
+	/**
+	 * Get the UAPI client instance, creating it lazily.
+	 * 
+	 * @return the UAPI client
+	 */
+	public WireGuardUAPI uapi() {
+		if (uapi == null) {
+			uapi = createUAPI();
+		}
+		return uapi;
+	}
+
+	/**
+	 * Create a {@link WireGuardUAPI} instance. Override to customize the socket directory.
+	 * 
+	 * @return a new UAPI client
+	 */
+	protected WireGuardUAPI createUAPI() {
+		return new WireGuardUAPI();
+	}
+
+	/**
+	 * Check whether the UAPI socket is available for the given interface.
+	 * 
+	 * @param nativeInterfaceName the native interface name
+	 * @return true if a UAPI socket exists for this interface
+	 */
+	public boolean hasUAPISocket(String nativeInterfaceName) {
+		return uapi().hasSocket(nativeInterfaceName);
 	}
 
 	@Override
@@ -81,20 +115,49 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 
 	@Override
 	public void reconfigure(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
-		super.reconfigure(adapter, configuration);
+		var nativeName = adapter.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			LOG.debug("Using UAPI socket for setconf on {}", nativeName);
+			uapi().setConfiguration(nativeName, configuration);
+		} else {
+			super.reconfigure(adapter, configuration);
+		}
 		addRoutes(adapter);
 	}
 
 	@Override
 	public void sync(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
-		super.sync(adapter, configuration);
+		var nativeName = adapter.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			LOG.debug("Using UAPI socket for syncconf on {}", nativeName);
+			uapi().syncConfiguration(nativeName, configuration);
+		} else {
+			super.sync(adapter, configuration);
+		}
 		addRoutes(adapter);
 	}
 
 	@Override
 	public void append(VpnAdapter adapter, VpnAdapterConfiguration configuration) throws IOException {
-		super.append(adapter, configuration);
+		var nativeName = adapter.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			LOG.debug("Using UAPI socket for addconf on {}", nativeName);
+			uapi().appendConfiguration(nativeName, configuration);
+		} else {
+			super.append(adapter, configuration);
+		}
 		addRoutes(adapter);
+	}
+
+	@Override
+	public void remove(VpnAdapter adapter, String publicKey) throws IOException {
+		var nativeName = adapter.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			LOG.debug("Using UAPI socket to remove peer on {}", nativeName);
+			uapi().removePeer(nativeName, publicKey);
+		} else {
+			super.remove(adapter, publicKey);
+		}
 	}
 
 	@Override
@@ -119,6 +182,16 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 
 	@Override
 	public Instant getLatestHandshake(VpnAddress iface, String publicKey) throws IOException {
+		if (hasUAPISocket(iface.nativeName())) {
+			var device = uapi().getDevice(iface.nativeName());
+			for (var peer : device.peers()) {
+				if (peer.publicKey().equals(publicKey)) {
+					return peer.lastHandshake();
+				}
+			}
+			return Instant.ofEpochSecond(0);
+		}
+		// Fallback to wg CLI
 		for (String line : context.commands().privileged().output(context.nativeComponents().tool(Tool.WG), "show",
 				iface.nativeName(), "latest-handshakes")) {
 			String[] args = line.trim().split("\\s+");
@@ -156,6 +229,19 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 
 	@Override
 	protected Optional<String> getPublicKey(String interfaceName) throws IOException {
+		if (hasUAPISocket(interfaceName)) {
+			try {
+				var device = uapi().getDevice(interfaceName);
+				var pk = device.publicKey();
+				if (pk == null || pk.isEmpty()) {
+					return Optional.empty();
+				}
+				return Optional.of(pk);
+			} catch (IOException e) {
+				LOG.debug("UAPI socket error for {}, falling back to wg CLI", interfaceName, e);
+			}
+		}
+		// Fallback to wg CLI
 		try {
 			var iterator = context.commands().privileged()
 					.silentOutput(context.nativeComponents().tool(Tool.WG), "show", interfaceName, "public-key")
@@ -179,6 +265,65 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 	@SuppressWarnings("serial")
 	@Override
 	public VpnInterfaceInformation information(VpnAdapter adapter) {
+		var iface = adapter.address();
+		if (hasUAPISocket(iface.nativeName())) {
+			try {
+				return informationFromUAPI(iface);
+			} catch (IOException e) {
+				LOG.debug("UAPI socket error for {}, falling back to wg CLI", iface.nativeName(), e);
+			}
+		}
+		return informationFromCli(adapter);
+	}
+
+	private VpnInterfaceInformation informationFromUAPI(VpnAddress iface) throws IOException {
+		var device = uapi().getDevice(iface.nativeName());
+		var peers = new ArrayList<VpnPeerInformation>();
+		var totalRx = 0L;
+		var totalTx = 0L;
+		var maxHandshake = 0L;
+
+		for (var peerState : device.peers()) {
+			var thisRx = peerState.rxBytes();
+			var thisTx = peerState.txBytes();
+			var thisHandshake = peerState.lastHandshake();
+			totalRx += thisRx;
+			totalTx += thisTx;
+			maxHandshake = Math.max(maxHandshake, thisHandshake.toEpochMilli());
+
+			peers.add(new VpnPeerInformation() {
+				@Override public long tx() { return thisTx; }
+				@Override public long rx() { return thisRx; }
+				@Override public Instant lastHandshake() { return thisHandshake; }
+				@Override public Optional<String> error() { return Optional.empty(); }
+				@Override public Optional<InetSocketAddress> remoteAddress() { return peerState.remoteAddress(); }
+				@Override public List<String> allowedIps() { return peerState.allowedIps(); }
+				@Override public String publicKey() { return peerState.publicKey(); }
+				@Override public Optional<String> presharedKey() { return peerState.presharedKey(); }
+			});
+		}
+
+		var ifaceName = iface.name();
+		var finalRx = totalRx;
+		var finalTx = totalTx;
+		var finalHandshake = maxHandshake;
+
+		return new VpnInterfaceInformation() {
+			@Override public String interfaceName() { return ifaceName; }
+			@Override public long tx() { return finalTx; }
+			@Override public long rx() { return finalRx; }
+			@Override public List<VpnPeerInformation> peers() { return peers; }
+			@Override public Instant lastHandshake() { return Instant.ofEpochMilli(finalHandshake); }
+			@Override public Optional<String> error() { return Optional.empty(); }
+			@Override public Optional<Integer> listenPort() { return device.listenPort() == 0 ? Optional.empty() : Optional.of(device.listenPort()); }
+			@Override public Optional<Integer> fwmark() { return device.fwmark() == 0 ? Optional.empty() : Optional.of(device.fwmark()); }
+			@Override public String publicKey() { return device.publicKey(); }
+			@Override public String privateKey() { return device.privateKey(); }
+		};
+	}
+
+	@SuppressWarnings("serial")
+	private VpnInterfaceInformation informationFromCli(VpnAdapter adapter) {
 		try {
 			var iface = adapter.address();
 			var peers = new ArrayList<VpnPeerInformation>();
@@ -218,102 +363,28 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 					tx.addAndGet(thisTx);
 
 					peers.add(new VpnPeerInformation() {
-
-						@Override
-						public long tx() {
-							return thisTx;
-						}
-
-						@Override
-						public long rx() {
-							return thisRx;
-						}
-
-						@Override
-						public Instant lastHandshake() {
-							return thisLastHandshake;
-						}
-
-						@Override
-						public Optional<String> error() {
-							return Optional.empty();
-						}
-
-						@Override
-						public Optional<InetSocketAddress> remoteAddress() {
-							return remoteAddress;
-						}
-
-						@Override
-						public List<String> allowedIps() {
-							return allowedIps;
-						}
-
-						@Override
-						public String publicKey() {
-							return peerPublicKey;
-						}
-
-						@Override
-						public Optional<String> presharedKey() {
-							return presharedKey;
-						}
-
+						@Override public long tx() { return thisTx; }
+						@Override public long rx() { return thisRx; }
+						@Override public Instant lastHandshake() { return thisLastHandshake; }
+						@Override public Optional<String> error() { return Optional.empty(); }
+						@Override public Optional<InetSocketAddress> remoteAddress() { return remoteAddress; }
+						@Override public List<String> allowedIps() { return allowedIps; }
+						@Override public String publicKey() { return peerPublicKey; }
+						@Override public Optional<String> presharedKey() { return presharedKey; }
 					});
 				}
 			}
 			return new VpnInterfaceInformation() {
-
-				@Override
-				public String interfaceName() {
-					return iface.name();
-				}
-
-				@Override
-				public long tx() {
-					return tx.get();
-				}
-
-				@Override
-				public long rx() {
-					return rx.get();
-				}
-
-				@Override
-				public List<VpnPeerInformation> peers() {
-					return peers;
-				}
-
-				@Override
-				public Instant lastHandshake() {
-					return Instant.ofEpochMilli(lastHandshake.get());
-				}
-
-				@Override
-				public Optional<String> error() {
-					return Optional.empty();
-				}
-
-				@Override
-				public Optional<Integer> listenPort() {
-					return port.get() == 0 ? Optional.empty() : Optional.of(port.get());
-				}
-
-				@Override
-				public Optional<Integer> fwmark() {
-					return fwmark.get() == 0 ? Optional.empty() : Optional.of(fwmark.get());
-				}
-
-				@Override
-				public String publicKey() {
-					return publicKey.toString();
-				}
-
-				@Override
-				public String privateKey() {
-					return privateKey.toString();
-				}
-
+				@Override public String interfaceName() { return iface.name(); }
+				@Override public long tx() { return tx.get(); }
+				@Override public long rx() { return rx.get(); }
+				@Override public List<VpnPeerInformation> peers() { return peers; }
+				@Override public Instant lastHandshake() { return Instant.ofEpochMilli(lastHandshake.get()); }
+				@Override public Optional<String> error() { return Optional.empty(); }
+				@Override public Optional<Integer> listenPort() { return port.get() == 0 ? Optional.empty() : Optional.of(port.get()); }
+				@Override public Optional<Integer> fwmark() { return fwmark.get() == 0 ? Optional.empty() : Optional.of(fwmark.get()); }
+				@Override public String publicKey() { return publicKey.toString(); }
+				@Override public String privateKey() { return privateKey.toString(); }
 			};
 		} catch (IOException ioe) {
 			throw new UncheckedIOException(ioe);
@@ -321,7 +392,46 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 	}
 
 	@Override
-	public final VpnAdapterConfiguration configuration(VpnAdapter adapter) {
+	public VpnAdapterConfiguration configuration(VpnAdapter adapter) {
+		var nativeName = adapter.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			try {
+				return configurationFromUAPI(nativeName);
+			} catch (IOException e) {
+				LOG.debug("UAPI socket error for {}, falling back to wg CLI", nativeName, e);
+			}
+		}
+		return configurationFromCli(adapter);
+	}
+
+	private VpnAdapterConfiguration configurationFromUAPI(String nativeName) throws IOException {
+		var device = uapi().getDevice(nativeName);
+		var builder = new VpnAdapterConfiguration.Builder();
+		if (!device.privateKey().isEmpty()) {
+			builder.withPrivateKey(device.privateKey());
+		}
+		if (device.listenPort() > 0) {
+			builder.withListenPort(device.listenPort());
+		}
+		if (device.fwmark() > 0) {
+			builder.withFwMark(device.fwmark());
+		}
+		for (var peerState : device.peers()) {
+			var peerBuilder = new VpnPeer.Builder()
+					.withPublicKey(peerState.publicKey())
+					.withAllowedIps(peerState.allowedIps());
+			peerState.presharedKey().ifPresent(peerBuilder::withPresharedKey);
+			peerState.remoteAddress().ifPresent(addr ->
+					peerBuilder.withEndpoint(addr.getHostString() + ":" + addr.getPort()));
+			if (peerState.persistentKeepalive() > 0) {
+				peerBuilder.withPersistentKeepalive(peerState.persistentKeepalive());
+			}
+			builder.addPeers(peerBuilder.build());
+		}
+		return builder.build();
+	}
+
+	private VpnAdapterConfiguration configurationFromCli(VpnAdapter adapter) {
 		try {
 			try {
 				return new VpnAdapterConfiguration.Builder()
@@ -341,8 +451,7 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 		/* Set routes from the known allowed-ips supplies by Wireguard. */
 		session.allows().clear();
 
-		for (var s : context().commands().privileged().output(context().nativeComponents().tool(Tool.WG), "show",
-				session.address().nativeName(), "allowed-ips")) {
+		for (var s : getAllowedIps(session)) {
 			var t = new StringTokenizer(s);
 			if (t.hasMoreTokens()) {
 				t.nextToken();
@@ -367,5 +476,26 @@ public abstract class AbstractUnixDesktopPlatformService<I extends VpnAddress>
 		});
 		/* Actually add routes */
 		((AbstractUnixAddress<?>) session.address()).setRoutes(session.allows());
+	}
+
+	protected Collection<String> getAllowedIps(VpnAdapter session) throws IOException {
+		var nativeName = session.address().nativeName();
+		if (hasUAPISocket(nativeName)) {
+			var device = uapi().getDevice(nativeName);
+			var result = new ArrayList<String>();
+			for (var peer : device.peers()) {
+				if (!peer.allowedIps().isEmpty()) {
+					// Format: "publickey\tallowedip1 allowedip2 ..."
+					var sb = new StringBuilder(peer.publicKey());
+					for (var ip : peer.allowedIps()) {
+						sb.append('\t').append(ip);
+					}
+					result.add(sb.toString());
+				}
+			}
+			return result;
+		}
+		return context().commands().privileged().output(context().nativeComponents().tool(Tool.WG), "show",
+				nativeName, "allowed-ips");
 	}
 }

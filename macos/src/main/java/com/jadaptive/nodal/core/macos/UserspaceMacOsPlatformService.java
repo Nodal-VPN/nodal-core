@@ -27,6 +27,7 @@ import com.jadaptive.nodal.core.lib.util.OsUtil;
 import com.jadaptive.nodal.core.lib.StartRequest;
 import com.jadaptive.nodal.core.lib.SystemContext;
 import com.jadaptive.nodal.core.lib.VpnAdapter;
+import com.jadaptive.nodal.core.lib.VpnAdapterConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,17 +178,31 @@ public class UserspaceMacOsPlatformService extends AbstractUnixDesktopPlatformSe
 		
 		var ip = findAddress(startRequest);
 
-		var tempFile = Files.createTempFile("wg", "cfg");
-		try {
-			try (var writer = Files.newBufferedWriter(tempFile)) {
-				transform(configuration).write(writer);
+		var transformedConfig = transform(configuration);
+		if (hasUAPISocket(ip.nativeName())) {
+			log.info("Activating Wireguard configuration for {} via UAPI socket", ip.shortName());
+			try {
+				var adapterConfig = new VpnAdapterConfiguration.Builder()
+						.fromFileContent(transformedConfig.write())
+						.build();
+				uapi().setConfiguration(ip.nativeName(), adapterConfig);
+			} catch (ParseException e) {
+				throw new IOException("Failed to parse transformed configuration", e);
 			}
-			log.info("Activating Wireguard configuration for {} (in {})", ip.shortName(), tempFile);
-			context().commands().privileged().logged().result(context().nativeComponents().tool(Tool.WG), "setconf",
-					ip.nativeName(), tempFile.toString());
 			log.info("Activated Wireguard configuration for {}", ip.shortName());
-		} finally {
-			Files.delete(tempFile);
+		} else {
+			var tempFile = Files.createTempFile("wg", "cfg");
+			try {
+				try (var writer = Files.newBufferedWriter(tempFile)) {
+					transformedConfig.write(writer);
+				}
+				log.info("Activating Wireguard configuration for {} (in {})", ip.shortName(), tempFile);
+				context().commands().privileged().logged().result(context().nativeComponents().tool(Tool.WG), "setconf",
+						ip.nativeName(), tempFile.toString());
+				log.info("Activated Wireguard configuration for {}", ip.shortName());
+			} finally {
+				Files.delete(tempFile);
+			}
 		}
 
 		/*

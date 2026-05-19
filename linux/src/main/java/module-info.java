@@ -33,6 +33,7 @@ open module com.jadaptive.nodal.core.os {
     requires org.slf4j;
     requires org.freedesktop.dbus;
     requires com.sshtools.liftlib;
+    requires com.sun.jna;
     requires static uk.co.bithatch.nativeimage.annotations;
     
     provides PlatformServiceFactory with LinuxPlatformServiceFactory;

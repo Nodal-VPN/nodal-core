@@ -198,7 +198,7 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
 
     @Override
     public void setRoutes(Collection<String> allows) throws IOException {
-    	allows = allows.stream().map(IpUtil::normalizeMasked).toList();
+    	allows = allows.stream().map(IpUtil::normalizeMasked).distinct().toList();
     	
 
         /* Remove all the current routes for this interface. Normalize all the addresses (both
@@ -407,8 +407,14 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
                             .isEmpty()) {
                 table++;
             }
-            priv.logged().result(platform.context().nativeComponents().tool(Tool.WG), "set", name(), "fwmark",
-                    String.valueOf(table));
+            if (platform.hasUAPISocket(nativeName())) {
+                platform.uapi().setFwMark(nativeName(), table);
+            } else if (platform.isNetlinkAvailable()) {
+                platform.netlink().setFwMark(nativeName(), table);
+            } else {
+                priv.logged().result(platform.context().nativeComponents().tool(Tool.WG), "set", name(), "fwmark",
+                        String.valueOf(table));
+            }
         }
         var proto = "-4";
         var iptables = "iptables";
@@ -517,6 +523,23 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
     }
 
     private int getFWMark(String table) {
+        // Try UAPI socket first
+        if (platform.hasUAPISocket(nativeName())) {
+            try {
+                return platform.uapi().getFwMark(nativeName());
+            } catch (IOException e) {
+                LOG.debug("UAPI socket error for getFWMark on {}, falling back", nativeName(), e);
+            }
+        }
+        // Try Netlink
+        if (platform.isNetlinkAvailable()) {
+            try {
+                return platform.netlink().getFwMark(nativeName());
+            } catch (IOException e) {
+                LOG.debug("Netlink error for getFWMark on {}, falling back to wg CLI", nativeName(), e);
+            }
+        }
+        // Fallback to wg CLI
         try {
             Collection<String> lines = commands.privileged().output(platform.context().nativeComponents().tool(Tool.WG), "show",
                     nativeName(), "fwmark");
