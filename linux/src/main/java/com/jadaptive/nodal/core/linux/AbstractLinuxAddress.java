@@ -218,7 +218,7 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
 
         for (String route : allows) {
             if (!have.contains(route))
-                addRoute(route);
+                addRoute(route, false);
         }
     }
 
@@ -481,7 +481,7 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
         }
     }
 
-    private void addRoute(String route) throws IOException {
+    private void addRoute(String route, boolean checkPrevious) throws IOException {
         var proto = "-4";
         if (route.matches(".*:.*"))
             proto = "-6";
@@ -492,15 +492,17 @@ public abstract class AbstractLinuxAddress extends AbstractUnixAddress<AbstractL
         } else if (route.endsWith("/0")) {
             addDefault(route);
         } else {
-            try {
-                var res = commands.privileged().output("ip", proto, "route", "show", "dev", nativeName(), "match", route)
-                        .iterator().next();
-                if (Util.isNotBlank(res)) {
-                    // Already have
-                    return;
-                }
-            } catch (Exception e) {
-            }
+        	if(checkPrevious) {
+	            try {
+	                var res = commands.privileged().output("ip", proto, "route", "show", "dev", nativeName(), "match", route)
+	                        .iterator().next();
+	                if (Util.isNotBlank(res)) {
+	                    // Already have
+	                    return;
+	                }
+	            } catch (Exception e) {
+	            }
+        	}
             LOG.info("Adding route {} to {} for {}", route, shortName(), proto);
             commands.privileged().logged().result("ip", proto, "route", "add", route, "dev", nativeName());
         }
